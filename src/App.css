@@ -1,0 +1,175 @@
+/* ===== GLOBAL ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #ffffff;
+  color: #2c2c2c;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 60px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-left img {
+  height: 45px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+}
+
+.nav-links li {
+  cursor: pointer;
+}
+
+.active {
+  color: #79A206;
+}
+
+/* ===== HERO ===== */
+.hero {
+  height: 300px;
+  background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+              url("https://images.unsplash.com/photo-1501004318641-b39e6451bec6");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-overlay {
+  color: white;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 48px;
+}
+
+/* ===== ABOUT ===== */
+.about {
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.about span {
+  color: #79A206;
+  font-weight: bold;
+}
+
+.about p {
+  line-height: 1.9;
+  margin-bottom: 15px;
+}
+
+/* ===== 3 CARDS ===== */
+.feature-section {
+  display: flex;
+  gap: 30px;
+  padding: 60px;
+}
+
+.feature-card {
+  flex: 1;
+  text-align: center;
+  padding: 50px 30px;
+  border-radius: 10px;
+  color: white;
+  transition: 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+}
+
+.green { background: #a8c46b; }
+.blue { background: #9fb2c8; }
+.brown { background: #b8a57a; }
+
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  background: white;
+  color: #79A206;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin: 0 auto 20px;
+}
+
+/* ===== FOUNDER ===== */
+.founder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  padding: 80px;
+}
+
+.founder img {
+  width: 160px;
+  border-radius: 50%;
+  border: 5px solid #79A206;
+}
+
+.founder span {
+  color: #79A206;
+}
+
+/* ===== MISSION ===== */
+.mission {
+  background: linear-gradient(135deg, #79A206, #5c8a05);
+  color: white;
+  text-align: center;
+  padding: 80px 20px;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background: #1b5e20;
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+
+  .feature-section {
+    flex-direction: column;
+    padding: 40px 20px;
+  }
+
+  .founder {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .navbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
