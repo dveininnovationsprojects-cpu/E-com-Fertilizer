@@ -1,3 +1,6 @@
+
+
+import AdminDashboard from "./pages/AdminDashboard"; // Namma create panna dashboard import
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -26,7 +29,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/admin" element={<div>Admin Panel (No Header/Footer)</div>} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </LayoutWrapper>
     </Router>
