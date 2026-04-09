@@ -107,18 +107,25 @@ body {
 
 /* ABOUT CONTAINER */
 .about-container {
-  max-width: 950px;
+  max-width: 1200px;
   margin: auto;
   text-align: center;
-  padding: 80px 20px;
+  padding: 60px 40px;
 }
 
 .about-text-justified p {
   text-align: justify;
   text-justify: inter-word;
-  line-height: 1.9;
+  line-height: 2.0;
   color: #444;
   font-size: 1.1rem;
+  padding: 0;
+}
+
+.about-container h2 {
+  color: #79A206;
+  margin-bottom: 16px;
+  font-size: 25px;
 }
 
 .about-text-justified span {
@@ -163,27 +170,85 @@ body {
   margin: 0 auto 20px;
 }
 
-/* FOUNDER */
-.founder {
+/* FOUNDER + MISSION 2 COLUMN */
+.founder-mission {
   display: flex;
+  gap: 0;
+  min-height: 100px;
+}
+
+.founder-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 50px;
-  padding: 80px;
+  gap: 20px;
+  padding: 60px 40px;
+  background: #f9f9f9;
 }
 
-.founder img {
-  width: 160px;
-  border-radius: 50%;
-  border: 5px solid #79A206;
+.founder-col img {
+  width: 100px;
+  height: 100px;
+  border-radius: 70%;
+  object-fit: cover;
+  border: 3px solid #4c5f18;
+  box-shadow: 0 4px 16px rgba(121,162,6,0.2);
 }
 
-/* MISSION */
-.mission {
-  background: linear-gradient(135deg, #79A206, #5c8a05);
-  color: white;
+.founder-text {
   text-align: center;
-  padding: 80px 20px;
+}
+
+.founder-text h3 {
+  font-size: 1.3rem;
+  color: #3a5000;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.founder-text p {
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.9;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.founder-text span {
+  color: #79A206;
+  font-weight: 600;
+}
+
+.mission-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, #79A206, #5c8a05);
+  color: rgb(64, 109, 52);
+}
+
+.mission-col h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: rgb(50, 72, 24);
+}
+
+.mission-col p {
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.9;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.9);
+}
+
+@media (max-width: 768px) {
+  .founder-mission { flex-direction: column; }
 }
 
 /* FOOTER */
