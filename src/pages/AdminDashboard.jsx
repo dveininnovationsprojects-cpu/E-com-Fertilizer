@@ -16,9 +16,13 @@ const AdminDashboard = () => {
     const [showLogoutModal, setShowLogoutModal] = useState(false); 
     const [images, setImages] = useState([]);
     
-    // Forms State - Updated category to match schema default
+    // Forms State
     const [formData, setFormData] = useState({
-        name: '', category: 'Organic', price: '', stock: '', description: ''
+        name: '', 
+        category: 'Bio Fertilizer', 
+        price: '', 
+        stock: '', 
+        description: ''
     });
     const [profileData, setProfileData] = useState({ name: '', email: '' });
     const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -56,10 +60,25 @@ const AdminDashboard = () => {
 
     const fetchAdminProfile = async () => {
         try {
-            const res = await API.get('/users/profile');
-            setAdminUser(res.data);
-            setProfileData({ name: res.data.name, email: res.data.email });
+            // FIXED: Using auth/profile instead of users/profile based on Postman
+            const res = await API.get('auth/profile');
+            const userData = res.data.user || res.data;
+            setAdminUser(userData);
+            setProfileData({ name: userData.name, email: userData.email });
         } catch (err) {
+            // Fallback to localStorage if API get fails
+            const storedUserStr = localStorage.getItem('user');
+            if (storedUserStr) {
+                try {
+                    const storedUser = JSON.parse(storedUserStr);
+                    const name = storedUser.name || storedUser.user?.name || 'System Admin';
+                    const email = storedUser.email || storedUser.user?.email || 'admin@saralx.com';
+                    setAdminUser({ name, email });
+                    setProfileData({ name, email });
+                    return;
+                } catch(e) {}
+            }
+            
             const fallbackUser = { name: 'System Admin', email: 'admin@saralx.com' };
             setAdminUser(fallbackUser);
             setProfileData(fallbackUser);
@@ -97,7 +116,7 @@ const AdminDashboard = () => {
         try {
             await API.post('/admin/products', data);
             alert("Inventory updated successfully.");
-            setFormData({ name: '', category: 'Organic', price: '', stock: '', description: '' });
+            setFormData({ name: '', category: 'Bio Fertilizer', price: '', stock: '', description: '' });
             setImages([]);
             setShowAddModal(false); 
             fetchData();
@@ -120,11 +139,31 @@ const AdminDashboard = () => {
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
         try {
-            await API.put('/users/profile', profileData);
+            // FIXED: Pointing to auth/profile
+            await API.put('auth/profile', profileData);
+            
             alert("Profile updated successfully.");
+            
+            // Instantly update UI state
+            setAdminUser(prev => ({ ...prev, name: profileData.name, email: profileData.email }));
+            
+            // Update localStorage so the name persists on refresh
+            const storedUserStr = localStorage.getItem('user');
+            if(storedUserStr) {
+                let storedUser = JSON.parse(storedUserStr);
+                if(storedUser.user) {
+                    storedUser.user.name = profileData.name;
+                    storedUser.user.email = profileData.email;
+                } else {
+                    storedUser.name = profileData.name;
+                    storedUser.email = profileData.email;
+                }
+                localStorage.setItem('user', JSON.stringify(storedUser));
+            }
+            
             fetchAdminProfile();
         } catch (err) {
-            alert("Failed to update profile.");
+            alert(err.response?.data?.message || "Failed to update profile.");
         }
     };
 
@@ -134,11 +173,12 @@ const AdminDashboard = () => {
             return alert("New passwords do not match.");
         }
         try {
-            await API.put('/users/profile/password', passwordData);
+            // FIXED: Pointing to auth/profile and sending the exact field expected by your backend
+            await API.put('auth/profile', { password: passwordData.newPassword });
             alert("Password changed successfully.");
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (err) {
-            alert("Failed to change password.");
+            alert(err.response?.data?.message || "Failed to change password.");
         }
     };
 
@@ -148,9 +188,12 @@ const AdminDashboard = () => {
 
     const confirmLogout = async () => {
         try {
-            await API.post('/users/logout');
+            // FIXED: Used auth/logout to match the auth prefix
+            await API.post('auth/logout'); 
+            localStorage.removeItem('user'); // Important security step
             window.location.href = '/'; 
         } catch (err) {
+            localStorage.removeItem('user');
             window.location.href = '/';
         }
     };
@@ -548,6 +591,7 @@ const AdminDashboard = () => {
                             <h2 style={s.pageTitle}>System Overview</h2>
                         </div>
                         
+                        {/* Dynamic Welcome Banner */}
                         <div style={{...s.card, backgroundColor: theme.primary, color: '#fff', border: 'none', padding: '35px', display: 'flex', flexDirection: 'column', gap: '8px'}}>
                             <h2 style={{margin: '0', fontSize: '24px', fontWeight: '600'}}>Welcome back, {adminUser.name}</h2>
                             <p style={{margin: 0, opacity: 0.9, fontSize: '15px', fontWeight: '400'}}>Here is the latest performance overview of your Saral-X business today.</p>
@@ -623,7 +667,7 @@ const AdminDashboard = () => {
                                             <th style={s.th}>Category</th>
                                             <th style={s.th}>Stock</th>
                                             <th style={s.th}>Price</th>
-                                            <th style={s.th}>Rating</th>
+                                            <th style={s.th}>Product Details</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -638,7 +682,9 @@ const AdminDashboard = () => {
                                                 <td style={{...s.td, color: theme.subText}}>{p.category}</td>
                                                 <td style={s.td}>{p.stock}</td>
                                                 <td style={{...s.td, fontWeight: '500'}}>₹{p.price.toLocaleString('en-IN')}</td>
-                                                <td style={{...s.td, color: theme.subText}}>★ {p.rating || 0}</td>
+                                                <td style={{...s.td, color: theme.subText, maxWidth: '350px', lineHeight: '1.5'}}>
+                                                    {p.description || 'N/A'}
+                                                </td>
                                             </tr>
                                         ))}
                                         {products.length === 0 && (
