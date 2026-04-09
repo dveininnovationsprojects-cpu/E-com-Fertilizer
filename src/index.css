@@ -1,3 +1,12 @@
+/* 1. @import MUST be at the very top */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap');
+
+/* 2. Tailwind Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 3. Global Reset */
 * {
   margin: 0;
   padding: 0;
@@ -5,13 +14,130 @@
 }
 
 body {
+  overflow-x: hidden;
+  width: 100%;
   font-family: 'Poppins', sans-serif;
-  background: #ffffff;
-  color: #2c2c2c;
-  -webkit-font-smoothing: antialiased;
+  background-color: #ffffff;
 }
 
 #root {
-  width: 100%;
-  min-height: 100vh;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 4. Hero Slider Colors */
+.slider-bg {
+  background-color: #f1f0e8 !important; /* Premium Beige */
+}
+
+/* 5. Typography Logic - Desktop & Mobile */
+.harmic-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 72px;
+  line-height: 1.1;
+  color: #2c2c2c;
+  margin-bottom: 20px;
+}
+
+.harmic-sub {
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 5px;
+  color: #79A206;
+  font-weight: 600;
+}
+
+/* Mobile adjustments for Typography */
+@media (max-width: 768px) {
+  .harmic-title {
+    font-size: 38px !important;
+    line-height: 1.2;
+  }
+  .harmic-sub {
+    letter-spacing: 2px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* 6. Saturn Shadow Effect */
+.saturn-shadow {
+  width: 300px;
+  height: 40px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 70%);
+  border-radius: 50%;
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .saturn-shadow {
+    width: 180px;
+    height: 25px;
+    bottom: 5px;
+  }
+}
+
+/* 7. Navigation Arrows - MOBILE FIXED */
+.swiper-button-next, .swiper-button-prev {
+  color: #79A206 !important;
+  background: transparent !important;
+  opacity: 0;
+  transition: all 0.3s ease-in-out !important;
+  z-index: 50;
+}
+
+/* Force Arrows to be visible on Hover */
+.slider-container:hover .swiper-button-next,
+.slider-container:hover .swiper-button-prev {
+  opacity: 1;
+}
+
+/* Arrow Design */
+.swiper-button-next:after, .swiper-button-prev:after {
+  font-size: 40px !important;
+  font-weight: 200 !important;
+}
+
+/* On Mobile, keep arrows slightly visible or positioned better */
+@media (max-width: 768px) {
+  .swiper-button-next, .swiper-button-prev {
+    opacity: 0.5; /* Mobile-la mouse hover irukathu so light-ah show pannuvom */
+    transform: scale(0.7);
+  }
+  .swiper-button-next { right: 5px !important; }
+  .swiper-button-prev { left: 5px !important; }
+}
+
+/* 8. Fix Swiper Overlap */
+.swiper-slide {
+  opacity: 0 !important;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.swiper-slide-active {
+  opacity: 1 !important;
+  z-index: 10;
+}
+
+/* 9. Header & Components */
+.bag-shadow {
+  filter: drop-shadow(0 25px 20px rgba(0, 0, 0, 0.1));
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Pagination Dots */
+.swiper-pagination-bullet-active {
+  background: #79A206 !important;
 }
