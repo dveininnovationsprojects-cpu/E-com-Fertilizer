@@ -3,21 +3,24 @@ import API from '../api/axios';
 
 const AdminDashboard = () => {
     // --- 1. STATE MANAGEMENT ---
+    const [adminUser, setAdminUser] = useState({ name: 'Loading...', email: '' });
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [tickets, setTickets] = useState([]); // New state for Support Tickets
     const [activeTab, setActiveTab] = useState('dashboard');
     const [loading, setLoading] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(window.innerWidth > 1024);
     const [showAddModal, setShowAddModal] = useState(false); // Add Product Modal
+    const [showLogoutModal, setShowLogoutModal] = useState(false); // Custom Logout Modal
     const [images, setImages] = useState([]);
+    
+    // Forms State
     const [formData, setFormData] = useState({
-        name: '', 
-        category: 'Bio Fertilizer', 
-        price: '', 
-        stock: '', 
-        description: ''
+        name: '', category: 'Bio Fertilizer', price: '', stock: '', description: ''
     });
+    const [profileData, setProfileData] = useState({ name: '', email: '' });
+    const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
     // --- 2. CLEAN E-COMMERCE THEME ---
     const theme = {
@@ -37,6 +40,7 @@ const AdminDashboard = () => {
     // --- 3. LIFECYCLE & DATA FETCHING ---
     useEffect(() => {
         fetchData();
+        fetchAdminProfile();
         
         // Dynamic Window Resize Listener for Responsive Toggle
         const handleResize = () => {
@@ -50,19 +54,34 @@ const AdminDashboard = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    const fetchAdminProfile = async () => {
+        try {
+            const res = await API.get('/users/profile');
+            setAdminUser(res.data);
+            setProfileData({ name: res.data.name, email: res.data.email });
+        } catch (err) {
+            const fallbackUser = { name: 'System Admin', email: 'admin@saralx.com' };
+            setAdminUser(fallbackUser);
+            setProfileData(fallbackUser);
+        }
+    };
+
     const fetchData = async () => {
         try {
-            const [pRes, oRes] = await Promise.all([
+            const [pRes, oRes, tRes] = await Promise.all([
                 API.get('/products'),
-                API.get('/admin/orders')
+                API.get('/admin/orders'),
+                API.get('/support') // Fetching Support Tickets
             ]);
             setProducts(pRes.data);
             setOrders(oRes.data);
+            setTickets(tRes.data || []);
         } catch (err) {
             console.error("Dashboard Sync Error");
         }
     };
 
+    // --- ACTION HANDLERS ---
     const handleProductSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -75,7 +94,7 @@ const AdminDashboard = () => {
             alert("Inventory updated successfully.");
             setFormData({ name: '', category: 'Bio Fertilizer', price: '', stock: '', description: '' });
             setImages([]);
-            setShowAddModal(false); // Close Modal on success
+            setShowAddModal(false); 
             fetchData();
         } catch (err) {
             alert("Sync failed. Check your network or server.");
@@ -90,6 +109,46 @@ const AdminDashboard = () => {
             fetchData();
         } catch (err) { 
             console.error(err); 
+        }
+    };
+
+    const handleProfileUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            await API.put('/users/profile', profileData);
+            alert("Profile updated successfully.");
+            fetchAdminProfile();
+        } catch (err) {
+            alert("Failed to update profile.");
+        }
+    };
+
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            return alert("New passwords do not match.");
+        }
+        try {
+            await API.put('/users/profile/password', passwordData);
+            alert("Password changed successfully.");
+            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (err) {
+            alert("Failed to change password.");
+        }
+    };
+
+    // Custom Logout Logic
+    const handleLogoutClick = () => {
+        setShowLogoutModal(true); // Open custom modal instead of browser alert
+    };
+
+    const confirmLogout = async () => {
+        try {
+            await API.post('/users/logout');
+            window.location.href = '/'; // Direct to home page
+        } catch (err) {
+            // Force redirect even if API fails
+            window.location.href = '/';
         }
     };
 
@@ -139,7 +198,8 @@ const AdminDashboard = () => {
             padding: '20px 15px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px'
+            gap: '8px',
+            overflowY: 'auto'
         },
 
         navItem: (active) => ({
@@ -161,6 +221,20 @@ const AdminDashboard = () => {
             padding: '20px 25px',
             borderTop: `1px solid ${theme.border}`,
             backgroundColor: '#fafafa'
+        },
+
+        logoutBtn: {
+            width: '100%',
+            padding: '10px',
+            marginTop: '15px',
+            backgroundColor: 'transparent',
+            border: `1px solid ${theme.danger}`,
+            color: theme.danger,
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: '600',
+            transition: 'all 0.2s'
         },
 
         // MOBILE HEADER
@@ -292,6 +366,32 @@ const AdminDashboard = () => {
             color: theme.subText,
             lineHeight: '1'
         },
+        modalActionRow: {
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '12px',
+            marginTop: '25px'
+        },
+        cancelBtn: {
+            background: '#f1f3f0',
+            color: theme.text,
+            padding: '10px 20px',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '14px'
+        },
+        dangerBtn: {
+            background: theme.danger,
+            color: '#fff',
+            padding: '10px 20px',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '14px'
+        },
 
         // FORMS
         formGroup: {
@@ -402,14 +502,25 @@ const AdminDashboard = () => {
                     <div onClick={() => {setActiveTab('orders'); setIsSidebarOpen(false)}} style={s.navItem(activeTab === 'orders')}>
                         Orders
                     </div>
+                    <div onClick={() => {setActiveTab('support'); setIsSidebarOpen(false)}} style={s.navItem(activeTab === 'support')}>
+                        Support Tickets
+                    </div>
+                    <div onClick={() => {setActiveTab('profile'); setIsSidebarOpen(false)}} style={s.navItem(activeTab === 'profile')}>
+                        Profile & Settings
+                    </div>
                     <div onClick={() => {setActiveTab('company'); setIsSidebarOpen(false)}} style={s.navItem(activeTab === 'company')}>
-                        Company Profile
+                        Company Info
                     </div>
                 </div>
 
                 <div style={s.sidebarFooter}>
-                    <div style={{fontSize: '11px', color: theme.subText}}>Logged in as Admin</div>
-                    <div style={{fontSize: '13px', fontWeight: '600', color: theme.text, marginTop: '4px'}}>DR. T. Vijayakumar</div>
+                    <div style={{fontSize: '11px', color: theme.subText}}>Logged in as</div>
+                    <div style={{fontSize: '13px', fontWeight: '600', color: theme.text, marginTop: '4px'}}>
+                        {adminUser.name}
+                    </div>
+                    <button onClick={handleLogoutClick} style={s.logoutBtn}>
+                        Logout
+                    </button>
                 </div>
             </aside>
 
@@ -423,9 +534,9 @@ const AdminDashboard = () => {
                             <h2 style={s.pageTitle}>System Overview</h2>
                         </div>
                         
-                        {/* New Welcome Banner */}
+                        {/* Dynamic Welcome Banner */}
                         <div style={{...s.card, backgroundColor: theme.primary, color: '#fff', border: 'none', padding: '35px', display: 'flex', flexDirection: 'column', gap: '8px'}}>
-                            <h2 style={{margin: '0', fontSize: '24px', fontWeight: '600'}}>Welcome back, DR. T. Vijayakumar</h2>
+                            <h2 style={{margin: '0', fontSize: '24px', fontWeight: '600'}}>Welcome back, {adminUser.name}</h2>
                             <p style={{margin: 0, opacity: 0.9, fontSize: '15px', fontWeight: '400'}}>Here is the latest performance overview of your Saral-X business today.</p>
                         </div>
                         
@@ -488,7 +599,7 @@ const AdminDashboard = () => {
                             <button onClick={() => setShowAddModal(true)} style={s.addBtn}>+ Add Fertilizer</button>
                         </div>
 
-                        {/* Product List (Full Width) */}
+                        {/* Product List */}
                         <div style={s.card}>
                             <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Available Stock</h3>
                             <div style={s.tableContainer}>
@@ -672,14 +783,133 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* --- REDESIGNED COMPANY PROFILE --- */}
+                {/* --- SUPPORT TICKETS (NEW MODULE) --- */}
+                {activeTab === 'support' && (
+                    <div style={{ animation: 'fadeIn 0.3s ease' }}>
+                        <div style={s.headerAction}>
+                            <h2 style={s.pageTitle}>Support Tickets</h2>
+                        </div>
+                        
+                        <div style={s.card}>
+                            <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Customer Inquiries</h3>
+                            <div style={s.tableContainer}>
+                                <table style={s.table}>
+                                    <thead>
+                                        <tr>
+                                            <th style={s.th}>Customer Name</th>
+                                            <th style={s.th}>Subject</th>
+                                            <th style={s.th}>Message Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {tickets.map(t => (
+                                            <tr key={t._id}>
+                                                <td style={{...s.td, fontWeight: '500'}}>{t.user?.name || 'Guest User'}</td>
+                                                <td style={s.td}>{t.subject}</td>
+                                                <td style={{...s.td, color: theme.subText, maxWidth: '300px', lineHeight: '1.5'}}>
+                                                    {t.message}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {tickets.length === 0 && (
+                                            <tr>
+                                                <td colSpan="3" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>
+                                                    No support tickets found.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- PROFILE & SETTINGS --- */}
+                {activeTab === 'profile' && (
+                    <div style={{ animation: 'fadeIn 0.3s ease', maxWidth: '800px' }}>
+                        <div style={s.headerAction}>
+                            <h2 style={s.pageTitle}>Profile & Settings</h2>
+                        </div>
+
+                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px'}}>
+                            
+                            {/* Edit Profile Details */}
+                            <div style={s.card}>
+                                <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Update Details</h3>
+                                <form onSubmit={handleProfileUpdate}>
+                                    <div style={s.formGroup}>
+                                        <label style={s.label}>Full Name</label>
+                                        <input 
+                                            style={s.input} 
+                                            value={profileData.name}
+                                            onChange={e => setProfileData({...profileData, name: e.target.value})}
+                                            required
+                                        />
+                                    </div>
+                                    <div style={s.formGroup}>
+                                        <label style={s.label}>Email Address</label>
+                                        <input 
+                                            type="email"
+                                            style={s.input} 
+                                            value={profileData.email}
+                                            onChange={e => setProfileData({...profileData, email: e.target.value})}
+                                            required
+                                        />
+                                    </div>
+                                    <button type="submit" style={s.submitBtn}>Save Profile Changes</button>
+                                </form>
+                            </div>
+
+                            {/* Change Password */}
+                            <div style={s.card}>
+                                <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Change Password</h3>
+                                <form onSubmit={handlePasswordChange}>
+                                    <div style={s.formGroup}>
+                                        <label style={s.label}>Current Password</label>
+                                        <input 
+                                            type="password"
+                                            style={s.input} 
+                                            value={passwordData.currentPassword}
+                                            onChange={e => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                                            required
+                                        />
+                                    </div>
+                                    <div style={s.formGroup}>
+                                        <label style={s.label}>New Password</label>
+                                        <input 
+                                            type="password"
+                                            style={s.input} 
+                                            value={passwordData.newPassword}
+                                            onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})}
+                                            required
+                                        />
+                                    </div>
+                                    <div style={s.formGroup}>
+                                        <label style={s.label}>Confirm New Password</label>
+                                        <input 
+                                            type="password"
+                                            style={s.input} 
+                                            value={passwordData.confirmPassword}
+                                            onChange={e => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                                            required
+                                        />
+                                    </div>
+                                    <button type="submit" style={{...s.submitBtn, backgroundColor: theme.text}}>Update Password</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                )}
+
+                {/* --- COMPANY PROFILE (STATIC INFO) --- */}
                 {activeTab === 'company' && (
                     <div style={{ animation: 'fadeIn 0.3s ease', maxWidth: '100%' }}>
                         <div style={s.headerAction}>
                             <h2 style={s.pageTitle}>Company Profile</h2>
                         </div>
                         
-                        {/* Hero/Brand Section */}
                         <div style={{...s.card, borderTop: `4px solid ${theme.primary}`, padding: '40px'}}>
                             <h3 style={{fontSize: '28px', fontWeight: '700', color: theme.text, marginBottom: '10px'}}>Saraswathy Traders</h3>
                             <p style={{fontSize: '16px', color: theme.primary, fontWeight: '600', marginBottom: '25px'}}>Home of Saral-X | 25+ Years of Excellence</p>
@@ -688,10 +918,7 @@ const AdminDashboard = () => {
                             </p>
                         </div>
 
-                        {/* Grid for details */}
                         <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px', marginBottom: '30px'}}>
-                            
-                            {/* Vision & Founder */}
                             <div style={{...s.card, padding: '35px'}}>
                                 <h4 style={{fontSize: '18px', fontWeight: '600', color: theme.text, marginBottom: '20px', borderBottom: `1px solid ${theme.border}`, paddingBottom: '12px'}}>Leadership & Vision</h4>
                                 <p style={{fontSize: '15px', color: theme.subText, lineHeight: '1.8', textAlign: 'justify'}}>
@@ -699,7 +926,6 @@ const AdminDashboard = () => {
                                 </p>
                             </div>
 
-                            {/* Network & Clients */}
                             <div style={{...s.card, padding: '35px'}}>
                                 <h4 style={{fontSize: '18px', fontWeight: '600', color: theme.text, marginBottom: '20px', borderBottom: `1px solid ${theme.border}`, paddingBottom: '12px'}}>Network & Trust</h4>
                                 <p style={{fontSize: '15px', color: theme.subText, lineHeight: '1.8', textAlign: 'justify'}}>
@@ -708,7 +934,6 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-                        {/* Sister Company */}
                         <div style={{...s.card, backgroundColor: '#fafafa', padding: '35px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'}}>
                             <h4 style={{fontSize: '18px', fontWeight: '600', color: theme.text, marginBottom: '15px'}}>Associated Ventures</h4>
                             <p style={{fontSize: '15px', color: theme.subText, lineHeight: '1.8', maxWidth: '800px', textAlign: 'center'}}>
@@ -720,6 +945,22 @@ const AdminDashboard = () => {
                 )}
 
             </main>
+
+            {/* CUSTOM LOGOUT MODAL */}
+            {showLogoutModal && (
+                <div style={s.modalOverlay}>
+                    <div style={{...s.modalContent, maxWidth: '400px', padding: '25px'}}>
+                        <h3 style={{fontSize: '18px', fontWeight: '600', marginBottom: '15px', color: theme.text}}>Confirm Logout</h3>
+                        <p style={{fontSize: '14px', color: theme.subText, marginBottom: '25px', lineHeight: '1.5'}}>
+                            Are you sure you want to log out of the Saral-X admin panel?
+                        </p>
+                        <div style={s.modalActionRow}>
+                            <button onClick={() => setShowLogoutModal(false)} style={s.cancelBtn}>Cancel</button>
+                            <button onClick={confirmLogout} style={s.dangerBtn}>Logout</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MOBILE OVERLAY */}
             {isSidebarOpen && !isDesktop && (
