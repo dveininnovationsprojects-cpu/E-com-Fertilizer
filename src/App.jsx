@@ -1,21 +1,37 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import About from "./pages/About";
+
+
 import AdminDashboard from "./pages/AdminDashboard"; // Namma create panna dashboard import
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import Home from './pages/Home';
+import About from './pages/About';
+import Header from './components/Header';
+import Footer from './components/Footer';
+
+// Admin path-ah check panna intha layout wrapper
+const LayoutWrapper = ({ children }) => {
+  const location = useLocation();
+  // path '/admin' nu start aachuna Header/Footer load aagathu
+  const isAdminPath = location.pathname.startsWith('/admin');
+
+  return (
+    <>
+      {!isAdminPath && <Header />}
+      {children}
+      {!isAdminPath && <Footer />}
+    </>
+  );
+};
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* User Side Routes */}
-        <Route path="/" element={<About />} />
-        <Route path="/about" element={<About />} />
-        
-        {/* Future User Routes - Ippo dummy ha vaikalam */}
-        <Route path="/shop" element={<div>Shop Page (Coming Soon)</div>} />
-
-        {/* Admin Side Routes */}
-        <Route path="/admin" element={<AdminDashboard />} />
-      </Routes>
+      <LayoutWrapper>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Routes>
+      </LayoutWrapper>
     </Router>
   );
 }
