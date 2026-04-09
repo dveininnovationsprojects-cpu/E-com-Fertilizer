@@ -10,7 +10,6 @@ import Footer from './components/Footer';
 // Admin path-ah check panna intha layout wrapper
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
-  // path '/admin' nu start aachuna Header/Footer load aagathu
   const isAdminPath = location.pathname.startsWith('/admin');
 
   return (
