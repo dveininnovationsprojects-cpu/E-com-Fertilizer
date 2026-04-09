@@ -201,3 +201,121 @@ body {
   .navbar { flex-direction: column; gap: 10px; padding: 20px; }
   .hero-slider { height: 300px; }
 }
+
+/* LOGIN / REGISTER PAGE */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #c2c4bd 0%, #a5ba3b 50%, #989a90 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  font-family: sans-serif;
+}
+
+.login-card{background-color: #dfe8e2;
+  padding: 28px;
+  border-radius: 30px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  border: 2px solid;
+  border-color: #8cac70;
+  width: 100%;
+  max-width: 380px;
+}
+
+
+
+.inner-card h2 {
+  margin-bottom: 16px;
+  color: #3a5000;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: sans-serif;
+}
+
+.inner-card input {
+  width: 100%;
+  padding: 7px 10px;
+  margin: 5px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-family: sans-serif;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.inner-card input:focus {
+  border-color: #8AA12F;
+}
+
+.input-eye {
+  position: relative;
+  width: 100%;
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+} 
+
+.input-eye input {
+  width: 100%;
+  margin: 0;
+  padding-right: 34px;
+}
+
+.input-eye span {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #888;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  user-select: none;
+}
+
+.input-eye span:hover {
+  color: #3a5000;
+}
+
+.inner-card button {
+  width: 100%;
+  padding: 9px;
+  margin-top: 10px;
+  background-color: #8AA12F;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: sans-serif;
+}
+
+.inner-card button:hover {
+  background-color: #6f8425;
+}
+
+.inner-card p {
+  font-family: sans-serif;
+  font-size: 0.8rem;
+  margin-top: 12px;
+}
+
+.inner-card a {
+  color: #5c7a00;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.inner-card a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .login-card { padding: 18px; }
+  .inner-card { padding: 18px 14px; }
+  .inner-card h2 { font-size: 1.1rem; }
+  .inner-card input { font-size: 0.72rem; }
+  .inner-card button { font-size: 0.85rem; }
+}
