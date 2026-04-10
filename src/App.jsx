@@ -6,11 +6,11 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ProductDetails from './pages/ProductDetails';
 
 // Admin path-ah check panna intha layout wrapper
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
-  // path '/admin' nu start aachuna Header/Footer load aagathu
   const isAdminPath = location.pathname.startsWith('/admin');
 
   return (
@@ -30,8 +30,9 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
         </Routes>
       </LayoutWrapper>
     </Router>

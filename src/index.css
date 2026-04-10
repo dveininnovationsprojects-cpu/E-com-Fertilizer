@@ -1,12 +1,12 @@
-/* 1. @import MUST be at the very top */
+/* 1. MANDATORY TOP IMPORT */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap');
 
-/* 2. Tailwind Directives */
+/* 2. TAILWIND DIRECTIVES */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 3. Global Reset */
+/* 3. GLOBAL RESET & FULL SCREEN FIX */
 * {
   margin: 0;
   padding: 0;
@@ -25,14 +25,15 @@ body {
   max-width: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
+  border: none !important;
 }
 
-/* 4. Hero Slider Colors */
+/* 4. SLIDER BACKGROUND (RESTORED OLD COLOR) */
 .slider-bg {
-  background-color: #f1f0e8 !important; /* Premium Beige */
+  background-color: #dad8bf !important; /* Unga specific color code */
 }
 
-/* 5. Typography Logic - Desktop & Mobile */
+/* 5. TYPOGRAPHY (HARMIC STYLE) */
 .harmic-title {
   font-family: 'Playfair Display', serif;
   font-size: 72px;
@@ -46,13 +47,15 @@ body {
   letter-spacing: 5px;
   color: #79A206;
   font-weight: 600;
+  margin-bottom: 15px;
 }
 
 /* Mobile adjustments for Typography */
 @media (max-width: 768px) {
   .harmic-title {
-    font-size: 38px !important;
+    font-size: 36px !important;
     line-height: 1.2;
+    margin-bottom: 15px;
   }
   .harmic-sub {
     letter-spacing: 2px !important;
@@ -60,7 +63,7 @@ body {
   }
 }
 
-/* 6. Saturn Shadow Effect */
+/* 6. SATURN SHADOW EFFECT */
 .saturn-shadow {
   width: 300px;
   height: 40px;
@@ -75,44 +78,46 @@ body {
 
 @media (max-width: 768px) {
   .saturn-shadow {
-    width: 180px;
-    height: 25px;
-    bottom: 5px;
+    width: 160px;
+    height: 20px;
+    bottom: 0px;
   }
 }
 
-/* 7. Navigation Arrows - MOBILE FIXED */
+
 .swiper-button-next, .swiper-button-prev {
   color: #79A206 !important;
   background: transparent !important;
   opacity: 0;
   transition: all 0.3s ease-in-out !important;
   z-index: 50;
+  width: 50px !important;
+  height: 50px !important;
 }
 
-/* Force Arrows to be visible on Hover */
+/* Show arrows only on Hover */
 .slider-container:hover .swiper-button-next,
 .slider-container:hover .swiper-button-prev {
   opacity: 1;
 }
 
-/* Arrow Design */
+/* Arrow Design (Thin and Large) */
 .swiper-button-next:after, .swiper-button-prev:after {
   font-size: 40px !important;
   font-weight: 200 !important;
 }
 
-/* On Mobile, keep arrows slightly visible or positioned better */
+/* Mobile Arrow Adjustment */
 @media (max-width: 768px) {
   .swiper-button-next, .swiper-button-prev {
     opacity: 0.5; /* Mobile-la mouse hover irukathu so light-ah show pannuvom */
-    transform: scale(0.7);
+    transform: scale(0.6);
   }
-  .swiper-button-next { right: 5px !important; }
-  .swiper-button-prev { left: 5px !important; }
+  .swiper-button-next { right: 0px !important; }
+  .swiper-button-prev { left: 0px !important; }
 }
 
-/* 8. Fix Swiper Overlap */
+/* 8. SWIPER OVERLAP FIX (MUKKIYAM!) */
 .swiper-slide {
   opacity: 0 !important;
   transition: opacity 0.6s ease-in-out;
@@ -123,21 +128,40 @@ body {
   z-index: 10;
 }
 
-/* 9. Header & Components */
+/* 9. PRODUCT & IMAGE STYLES */
 .bag-shadow {
   filter: drop-shadow(0 25px 20px rgba(0, 0, 0, 0.1));
 }
 
+h1, h2, h3, button {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* 10. ANIMATIONS & DROPDOWN */
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-in-out;
 }
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInRight {
+  animation: fadeInRight 0.4s ease-out;
+}
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
+  from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Pagination Dots */
+/* Pagination Dots Custom Color */
 .swiper-pagination-bullet-active {
   background: #79A206 !important;
 }

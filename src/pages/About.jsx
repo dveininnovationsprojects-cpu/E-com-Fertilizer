@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-// Assets
+
 import logo from "../assets/logo.jpeg";
 import founder from "../assets/founder.jpeg";
 import slide1 from "../assets/slide1.jpg";
