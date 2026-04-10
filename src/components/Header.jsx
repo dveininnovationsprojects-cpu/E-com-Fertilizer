@@ -9,17 +9,16 @@ const Header = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
 
-    // Temporary Auth State (Ippo false-nu veingga, backend connect pannum pothu user logic podalam)
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const navigate = useNavigate();
 
-    // Category change aagumpothu products page-ku filter-oda pogum
+
     const handleCategoryChange = (e) => {
         const category = e.target.value;
         if (category === 'All Category') {
-            navigate('/'); // Home-ku reset aagum
+            navigate('/'); 
         } else {
-            // URL-la category path-ah anupuvom
+
             navigate(`/?category=${category}`); 
         }
     };
@@ -45,49 +44,52 @@ const Header = () => {
         <header className="w-full bg-white border-b sticky top-0 z-[100] shadow-sm px-4 md:px-16 py-3">
             <div className="flex items-center justify-between gap-2 md:gap-8">
                 
-                {/* 1. Logo Section */}
-                <div className="flex items-center">
-                    <button 
-                        className="md:hidden mr-3 text-gray-700 text-xl"
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    >
-                        <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars-staggered'}`}></i>
-                    </button>
-                    <Link to="/" className="flex items-center">
-                        {/* Custom logo path as you requested */}
-                        <img src="/images/logo.png" alt="Saraswathy" className="h-10 md:h-12 w-auto object-contain" />
-                        <span className="hidden sm:block text-xl font-black ml-2 text-[#333] tracking-tighter">SARAL-X</span>
-                    </Link>
-                </div>
+               <div className="flex items-center flex-shrink-0">
+    <button 
+        className="md:hidden mr-2 text-gray-700 text-xl"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+    >
+        <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars-staggered'}`}></i>
+    </button>
+    <Link to="/" className="flex items-center">
+        <img src="/images/logo.png" alt="Saraswathy" className="h-8 md:h-11 w-auto object-contain" />
+        {/* hidden sm:block will keep it hidden on small mobiles */}
+        <span className="hidden sm:block text-lg font-black ml-2 text-[#333] tracking-tighter">SARAL-X</span>
+    </Link>
+</div>
 
-              <div className="hidden md:flex flex-1 max-w-2xl border-2 border-gray-100 rounded-md overflow-hidden bg-gray-50 h-11">
-            <select 
-                onChange={handleCategoryChange} // Logic added here
-                className="bg-transparent px-3 border-r text-xs font-bold outline-none text-gray-500 cursor-pointer"
-            >
-                <option>All Category</option>
-                <option>Organic</option>
-                <option>Chemical</option>
-                <option>Tools</option>
-                <option>Seeds</option>
-            </select>
-                   <input 
-                type="text" 
-                placeholder="Search Fertilizer..." 
-                className="flex-1 px-4 outline-none text-sm bg-white"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="bg-white px-5 text-gray-400">
-                <i className="fa fa-search"></i>
-            </button>
-{/* --- Search Results Dropdown (Limited to search bar width) --- */}
+<div className="flex flex-1 max-w-2xl border-2 border-gray-100 rounded-md bg-gray-50 h-9 md:h-11 relative mx-1 md:mx-0">
+    <select 
+        onChange={handleCategoryChange} 
+        className="bg-transparent px-1 md:px-2 border-r text-[10px] md:text-xs font-bold outline-none text-gray-500 max-w-[70px] md:max-w-none"
+    >
+        <option value="All">All</option>
+        <option value="Organic">Organic</option>
+        <option value="Chemical">Chemical</option>
+        <option value="Tools">Tools</option>
+        <option value="Seeds">Seeds</option>
+    </select>
+    
+    <input 
+        type="text" 
+        className="flex-1 px-3 outline-none text-xs md:text-sm bg-white" 
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search Fertilizer..."
+    />
+    
+    <button className="bg-white px-3 md:px-5 text-gray-400">
+        <i className="fa fa-search text-sm"></i>
+    </button>
+
+{/* --- Search Results Dropdown (Merged with Header UI) --- */}
 {searchResults.length > 0 && (
     <div 
-        className="absolute top-[100%] left-0 w-full bg-white shadow-2xl rounded-b-xl border border-t-0 border-gray-100 z-[110] overflow-hidden animate-fadeIn"
+        className="absolute top-full left-0 w-full bg-white shadow-xl border-x border-b border-gray-100 z-[1000] overflow-hidden animate-fadeIn"
         style={{ 
-            maxHeight: '375px', // Exact-ah 5 products katanum
-            overflowY: 'auto' 
+            maxHeight: '350px', 
+            overflowY: 'auto',
+            marginTop: '-1px' // Idhu thaan dropdown-ah header kooda merge pannum
         }}
     >
         {searchResults.map((p) => (
@@ -97,26 +99,20 @@ const Header = () => {
                     navigate(`/product/${p._id}`);
                     setSearchTerm("");
                 }}
-                className="flex items-center gap-4 px-4 py-3 hover:bg-[#79A206]/5 cursor-pointer border-b border-gray-50 last:border-0 transition-all group"
+                className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-all group active:bg-gray-100"
             >
-                {/* Image Thumbnail */}
-                <div className="w-12 h-12 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
-                    <img src={p.imageUrl} className="w-full h-full object-contain group-hover:scale-110 transition-transform" alt={p.name} />
+                <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
+                    <img src={p.imageUrl} className="w-full h-full object-contain rounded-md shadow-sm" alt={p.name} />
                 </div>
-
-                {/* Product Info */}
-                <div className="flex flex-col overflow-hidden text-left">
-                    <span className="text-sm font-bold text-gray-800 truncate group-hover:text-[#79A206] transition-colors">{p.name}</span>
-                    <div className="flex items-center gap-2">
-                        <span className="text-[10px] bg-[#79A206]/10 text-[#79A206] px-2 py-0.5 rounded-full font-bold uppercase">{p.category}</span>
-                        <span className="text-sm font-black text-gray-700">₹{p.price}</span>
-                    </div>
+                <div className="flex flex-col text-left">
+                    <span className="text-xs md:text-sm font-bold text-gray-700 group-hover:text-[#79A206]">{p.name}</span>
+                    <span className="text-[10px] font-black text-[#79A206]">₹{p.price}</span>
                 </div>
             </div>
         ))}
     </div>
 )}
-        </div>
+</div>
 
                 {/* 3. Navigation Icons Section */}
                 <div className="flex items-center space-x-3 md:space-x-6 text-gray-700">
@@ -133,15 +129,14 @@ const Header = () => {
                         <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">0</span>
                     </div>
 
-                    {/* Account Dropdown (Login/Register/Profile) */}
-                    <div className="relative">
-                        <div 
-                            className="cursor-pointer hover:text-[#79A206] transition-all flex items-center gap-1"
-                            onClick={() => setShowProfileMenu(!showProfileMenu)}
-                        >
-                            <i className="fa-regular fa-user text-xl"></i>
-                            <i className={`fa-solid fa-chevron-down text-[10px] mt-1 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`}></i>
-                        </div>
+                  <div className="hidden md:relative md:block">
+    <div 
+        className="cursor-pointer hover:text-[#79A206] transition-all flex items-center gap-1"
+        onClick={() => setShowProfileMenu(!showProfileMenu)}
+    >
+        <i className="fa-regular fa-user text-xl"></i>
+        <i className={`fa-solid fa-chevron-down text-[10px] mt-1 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`}></i>
+    </div>
                         
                         {showProfileMenu && (
                             <div className="absolute right-0 mt-4 w-48 bg-white shadow-2xl rounded-lg py-2 border border-gray-100 animate-fadeIn overflow-hidden">
@@ -153,6 +148,9 @@ const Header = () => {
                                         <Link to="/register" className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
                                             <i className="fa-solid fa-user-plus mr-3 text-[#79A206]"></i> Register
                                         </Link>
+                                        <Link to="/profile" className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors border-t border-gray-50">
+            <i className="fa-solid fa-user-gear mr-3 text-[#79A206]"></i> My Profile
+        </Link>
                                     </>
                                 ) : (
                                     <>
@@ -198,20 +196,26 @@ const Header = () => {
                                     <i className={`fa-solid fa-angle-down text-xs transition-transform ${isAccountOpen ? 'rotate-180' : ''}`}></i>
                                 </div>
                                 {isAccountOpen && (
-                                    <ul className="pl-8 mt-4 space-y-4 text-sm font-semibold text-gray-500">
-                                        {!isLoggedIn ? (
-                                            <>
-                                                <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
-                                                <li><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
-                                                <li className="text-red-500">Logout</li>
-                                            </>
-                                        )}
-                                    </ul>
-                                )}
+    <ul className="pl-8 mt-4 space-y-4 text-sm font-semibold text-gray-500">
+        {!isLoggedIn ? (
+            <>
+                <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
+                <li><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
+                {/* NEW PROFILE BUTTON ADDED HERE */}
+                <li>
+                    <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-[#79A206]">
+                        <i className="fa-solid fa-id-card-clip"></i> My Profile
+                    </Link>
+                </li>
+            </>
+        ) : (
+            <>
+                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>View Profile</Link></li>
+                <li className="text-red-500 cursor-pointer">Logout</li>
+            </>
+        )}
+    </ul>
+)}
                             </li>
                         </ul>
                     </div>
@@ -220,5 +224,4 @@ const Header = () => {
         </header>
     );
 };
-
 export default Header;

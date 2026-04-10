@@ -76,18 +76,13 @@ const ProductDetails = () => {
                         <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#333] mt-4 leading-tight">
                             {product.name}
                         </h1>
-                        <div className="flex items-center gap-4 mt-4">
-                            <div className="flex text-yellow-400 text-sm">
-                                {[1, 2, 3, 4, 5].map(s => <i key={s} className="fa-solid fa-star"></i>)}
-                            </div>
-                            <span className="text-gray-400 text-sm font-medium border-l pl-4">( 42 Customer Reviews )</span>
-                        </div>
+                        
                     </div>
 
                     <div className="border-y border-gray-100 py-6">
                         <div className="flex items-baseline gap-4">
                             <span className="text-4xl font-black text-[#79A206]">₹{product.price}.00</span>
-                            <span className="text-xl text-gray-400 line-through font-medium">₹{product.price + 200}.00</span>
+                            
                         </div>
                         <p className="text-gray-500 mt-4 leading-relaxed text-lg">
                             {product.description}
@@ -124,28 +119,8 @@ const ProductDetails = () => {
                                 <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
                             </button>
                             <button className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all">
-                                <i className="fa-solid fa-bolt mr-3 text-yellow-400"></i> Buy Now
+                                 Buy Now
                             </button>
-                        </div>
-                    </div>
-
-                    {/* Features List */}
-                    <div className="grid grid-cols-2 gap-4 pt-8">
-                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-truck-fast"></i></div>
-                            Fast Delivery
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-leaf"></i></div>
-                            100% Organic
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-shield-halved"></i></div>
-                            Safe Payments
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-rotate-left"></i></div>
-                            7 Days Return
                         </div>
                     </div>
                 </div>

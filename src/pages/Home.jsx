@@ -28,23 +28,34 @@ useEffect(() => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            let url = 'http://192.168.1.6:5000/api/products?';
-            
-            // Build Query URL dynamic-ah
-            if (categoryFromURL !== 'All') url += `category=${categoryFromURL}&`;
-            if (searchFromURL) url += `search=${searchFromURL}`;
+            // Logic: build clean query string
+            const params = new URLSearchParams();
+            if (categoryFromURL && categoryFromURL !== 'All') {
+                params.append('category', categoryFromURL);
+            }
+            if (searchFromURL) {
+                params.append('search', searchFromURL);
+            }
+
+            const url = `http://192.168.1.6:5000/api/products?${params.toString()}`;
             
             const response = await axios.get(url);
             setProducts(response.data);
             setLoading(false);
+
+            // Auto-scroll logic
+            if (categoryFromURL && categoryFromURL !== 'All') {
+                setTimeout(() => {
+                    productSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
         } catch (error) {
             console.error("Error fetching products:", error);
             setLoading(false);
         }
     };
     fetchProducts();
-}, [categoryFromURL, searchFromURL]); // Dependency updated// URL category maaruna intha full block run aagum
-    // 2. Parallax Logic (Slider Movement)
+}, [categoryFromURL, searchFromURL]);    // 2. Parallax Logic (Slider Movement)
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const smoothX = useSpring(mouseX, { stiffness: 100, damping: 10 });
@@ -214,11 +225,7 @@ useEffect(() => {
                                     <h3 className="text-lg font-semibold text-[#333] group-hover:text-[#79A206] transition-colors line-clamp-1">{p.name}</h3>
                                     <p className="text-[#79A206] font-black text-2xl mt-2">₹{p.price}.00</p>
                                     
-                                    <div className="flex justify-center mt-3 text-yellow-400 text-[10px] space-x-1">
-                                        {[1, 2, 3, 4, 5].map(s => (
-                                            <i key={s} className={`fa-${s <= p.rating ? 'solid' : 'regular'} fa-star`}></i>
-                                        ))}
-                                    </div>
+                                    
                                 </div>
                             </div>
                         ))}

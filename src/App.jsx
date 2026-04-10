@@ -1,4 +1,3 @@
-import AdminDashboard from "./pages/AdminDashboard"; // Namma create panna dashboard import
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import AdminDashboard from "./pages/AdminDashboard"; 
 import Home from './pages/Home';
@@ -38,13 +37,10 @@ function App() {
     <Router>
       <LayoutWrapper>
         <Routes>
-          {/* Public Routes - Yaar venaalum paarkalam */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
-          {/* Protected Admin Route - Admin mattum thaan access panna mudiyum */}
           <Route 
             path="/admin" 
             element={
