@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 
 import logo from "../assets/logo.jpeg";
 import founder from "../assets/founder.jpeg";
 import slide1 from "../assets/slide1.jpg";
-import slide2 from "../assets/slide2.webp";
+import slide2 from "../assets/slide2.jpg";
 import slide3 from "../assets/slide3.jpg";
-import slide4 from "../assets/slide4.webp";
-import silde5 from "../assets/silde5.jpg"; 
-import slide6 from "../assets/slide6.webp";
+import slide4 from "../assets/slide4.jpg";
+import slide5 from "../assets/slide5.jpg";
+import slide6 from "../assets/slide6.jpg";
 
 import "../App.css";
 
 const About = () => {
-  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // 6 Images Array for the Slider
-  const slides = [slide1, slide2, slide3, slide4, silde5, slide6];
+  const slides = [slide1, slide2, slide3, slide4, slide5, slide6];
 
   // Auto-slide logic (4 seconds interval)
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timer = setInterval((  ) => {
       setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
     }, 4000);
     return () => clearInterval(timer);
@@ -43,35 +41,6 @@ const About = () => {
 
   return (
     <div className="page">
-      {/* ===== NAVBAR - Updated with Home, Profile, Cart Icons ===== */}
-      <nav className="navbar">
-        <div className="nav-left" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-          <img src={logo} alt="logo" />
-          <h2>Saral-X</h2>
-        </div>
-
-        <ul className="nav-links">
-          {/* Home Icon */}
-          <li>
-            <Link to="/"><i className="fa-solid fa-house"></i></Link>
-          </li>
-          
-          <li className="active"><Link to="/about">About</Link></li>
-          <li><Link to="/shop">Shop</Link></li>
-          <li><Link to="/blog">Blog</Link></li>
-          <li><Link to="/contact">Contact</Link></li>
-
-          {/* Cart Icon */}
-          <li>
-            <Link to="/cart"><i className="fa-solid fa-cart-shopping"></i></Link>
-          </li>
-          
-          {/* Profile/User Icon */}
-          <li>
-            <Link to="/profile"><i className="fa-regular fa-user"></i></Link>
-          </li>
-        </ul>
-      </nav>
 
       {/* ===== HERO SLIDER ===== */}
       <div className="hero-slider">
@@ -118,29 +87,25 @@ const About = () => {
         </div>
       </div>
 
-      {/* ===== FOUNDER ===== */}
-      <div className="founder">
+    {/* ===== FOUNDER + MISSION 2 COLUMN ===== */}
+    <div className="founder-mission">
+      <div className="founder-col">
         <img src={founder} alt="founder" />
-        <div>
-          <h3>Founder</h3>
+        <div className="founder-text">
+          <h3>DR. T. Vijayakumar</h3>
           <p>
             Founded by <span>DR. T. Vijayakumar</span>, Saraswathy Traders is built on trust, innovation, and sustainable agriculture.
+            With over <b>25 years of experience</b>, he envisioned a company that delivers reliable, eco-friendly fertilizer solutions
+            to farmers across India — improving soil health, increasing crop yield, and supporting the nation's agricultural growth.
           </p>
         </div>
       </div>
 
-      {/* ===== MISSION ===== */}
-      <div className="mission">
+      <div className="mission-col">
         <h2>Our Mission</h2>
-        <p>
-          At Saraswathy Traders, we focus on building long-term relationships through trust, quality, and service—helping farmers grow with confidence.
-        </p>
+        <p>We are proud to be a trusted supplier to government agricultural and horticulture departments, which reflects our quality standards and reliability. Our associated company, SS Enterprise (since 2024), supplies nursery plants, quality seeds, and organic rice products, supporting a complete and sustainable farming system. At Saraswathy Traders, we focus on building long-term relationships through trust, quality, and service — helping farmers and businesses grow with confidence.</p>
       </div>
-
-      {/* ===== FOOTER ===== */}
-      <footer className="footer">
-        © 2026 Saraswathy Traders | Saral-X
-      </footer>
+    </div>
     </div>
   );
 };
