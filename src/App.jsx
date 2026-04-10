@@ -32,6 +32,7 @@ const LayoutWrapper = ({ children }) => {
       {/* hideHeaderFooter false-ah iruntha mattum thaan Footer varum */}
       {!hideHeaderFooter && <Footer />}
     </>
+    
   );
 };
 
