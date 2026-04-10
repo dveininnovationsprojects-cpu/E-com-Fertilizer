@@ -3,28 +3,22 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
+const BASE = "http://192.168.1.6:5000/api";
+
 const Login = () => {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await axios.post("http://localhost:5000/api/login", {
-        email,
-        password,
-      });
-
+      const res = await axios.post(`${BASE}/login`, { email, password });
       if (res.data.success) {
-        localStorage.setItem("user", JSON.stringify(res.data));
-
-        alert("Login successful");
-
-        // 👉 redirect
-        navigate("/about");
+        const { success, ...userData } = res.data;
+        localStorage.setItem("user", JSON.stringify(userData));
+        window.dispatchEvent(new Event('storage'));
+        navigate("/");
       }
     } catch (error) {
       alert("Login failed");
@@ -36,32 +30,14 @@ const Login = () => {
       <div className="login-card">
         <div className="inner-card">
           <h2>Login</h2>
-
           <form onSubmit={handleLogin}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             <button type="submit">Login</button>
           </form>
-
           <p style={{ marginTop: "1rem" }}>
             Don't have an account?{" "}
-            <span onClick={() => navigate("/register")} style={{ cursor: "pointer", color: "#5c7a00" }}>
-              Register
-            </span>
+            <span onClick={() => navigate("/register")} style={{ cursor: "pointer", color: "#5c7a00" }}>Register</span>
           </p>
         </div>
       </div>

@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // Mobile Menu State
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const loadUser = () => {
+            const stored = localStorage.getItem('user');
+            setUser(stored ? JSON.parse(stored) : null);
+        };
+        loadUser();
+        window.addEventListener('storage', loadUser);
+        return () => window.removeEventListener('storage', loadUser);
+    }, []);
 
     return (
         <header className="w-full bg-white border-b sticky top-0 z-[100] shadow-sm px-4 md:px-16 py-4">
@@ -46,17 +58,9 @@ const Header = () => {
                         <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">0</span>
                     </div>
 
-                    <div className="relative">
-                        <i 
-                            className="fa-regular fa-user text-lg md:text-xl cursor-pointer hover:text-[#79A206]" 
-                            onClick={() => setShowProfileMenu(!showProfileMenu)}
-                        ></i>
-                        {showProfileMenu && (
-                            <div className="absolute right-0 mt-4 w-40 bg-white shadow-xl rounded py-2 border text-sm animate-fadeIn">
-                                <div className="px-4 py-2 hover:bg-gray-50 cursor-pointer border-b">Login</div>
-                                <div className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Register</div>
-                            </div>
-                        )}
+                    <div className="relative flex items-center gap-2 cursor-pointer" onClick={() => navigate('/profile')}>
+                        {user && <span className="hidden md:block text-sm font-medium text-[#3a5000]">{user.name}</span>}
+                        <i className="fa-regular fa-user text-lg md:text-xl hover:text-[#79A206]"></i>
                     </div>
                 </div>
             </div>

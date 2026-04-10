@@ -1,23 +1,29 @@
-import AdminDashboard from "./pages/AdminDashboard"; // Namma create panna dashboard import
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import AdminDashboard from "./pages/AdminDashboard";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import OrderHistory from "./pages/OrderHistory";
 
-// Admin path-ah check panna intha layout wrapper
+const PrivateRoute = ({ children }) => {
+  const user = localStorage.getItem("user");
+  return user ? children : <Navigate to="/login" />;
+};
+
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
-  // path '/admin' nu start aachuna Header/Footer load aagathu
   const isAdminPath = location.pathname.startsWith('/admin');
+  const isAuthPath = ['/login', '/register'].includes(location.pathname);
 
   return (
     <>
-      {!isAdminPath && <Header />}
+      {!isAdminPath && !isAuthPath && <Header />}
       {children}
-      {!isAdminPath && <Footer />}
+      {!isAdminPath && !isAuthPath && <Footer />}
     </>
   );
 };
@@ -28,10 +34,12 @@ function App() {
       <LayoutWrapper>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/order-history" element={<PrivateRoute><OrderHistory /></PrivateRoute>} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </LayoutWrapper>
     </Router>
