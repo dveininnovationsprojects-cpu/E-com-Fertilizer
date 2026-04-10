@@ -3,8 +3,6 @@ import API from "../api/axios"; // Important: Using centralized API
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-const BASE = "http://192.168.1.6:5000/api";
-
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -31,7 +29,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await API.post("auth/login", { email, password });
+      const res = await API.post("/auth/login", { email, password });
 
       if (res.data.success || res.status === 200) {
         // Save user details correctly based on backend response
@@ -43,7 +41,9 @@ const Login = () => {
         
         setUserRole(role);
         setUserName(name);
-        setRedirectPath(role === 'admin' ? '/admin' : '/');
+        
+        // FIX: Route admins to '/admin' and all normal users to '/profile'
+        setRedirectPath(role === 'admin' ? '/admin' : '/profile');
         
         // Show Success Popup
         setShowSuccessModal(true);
@@ -184,10 +184,10 @@ const Login = () => {
             <h3 style={styles.modalTitle}>Login Successful</h3>
             <p style={styles.modalText}>
               Welcome back, <strong>{userName}</strong>!<br/>
-              Redirecting you to the {userRole === 'admin' ? 'Admin Dashboard' : 'Store'}...
+              Redirecting you to the {userRole === 'admin' ? 'Admin Dashboard' : 'Profile'}...
             </p>
             <button onClick={handleProceed} style={styles.proceedBtn}>
-              Continue to {userRole === 'admin' ? 'Dashboard' : 'Store'}
+              Continue to {userRole === 'admin' ? 'Dashboard' : 'Profile'}
             </button>
           </div>
         </div>
