@@ -3,6 +3,8 @@ import API from "../api/axios"; // Important: Using centralized API
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
+const BASE = "http://192.168.1.6:5000/api";
+
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
