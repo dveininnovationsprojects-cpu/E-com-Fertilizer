@@ -1,0 +1,157 @@
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import API from "../api/axios";
+import { motion } from 'framer-motion';
+
+const ProductDetails = () => {
+    const { id } = useParams(); // URL-la irunthu product ID edukkum
+    const [product, setProduct] = useState(null);
+    const [mainImage, setMainImage] = useState("");
+    const [quantity, setQuantity] = useState(1);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const response = await API.get(`/products/${id}`);
+                setProduct(response.data);
+                setMainImage(response.data.imageUrl);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching product details:", error);
+                setLoading(false);
+            }
+        };
+        fetchProduct();
+        window.scrollTo(0, 0); // Page open aagum pothu top-ku scroll pannum
+    }, [id]);
+
+    if (loading) return (
+        <div className="h-screen flex justify-center items-center">
+            <i className="fa-solid fa-circle-notch fa-spin text-5xl text-[#79A206]"></i>
+        </div>
+    );
+
+    if (!product) return <div className="text-center py-20 font-bold text-xl">Product Not Found!</div>;
+
+    return (
+        <div className="max-w-7xl mx-auto px-4 md:px-10 py-10 md:py-20 bg-white">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                
+                {/* 1. LEFT SIDE: Image Gallery */}
+                <div className="space-y-4">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="h-[400px] md:h-[600px] bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 flex items-center justify-center p-6 shadow-sm"
+                    >
+                        <img 
+                            src={mainImage} 
+                            alt={product.name} 
+                            className="h-full object-contain hover:scale-110 transition-transform duration-500" 
+                        />
+                    </motion.div>
+                    
+                    {/* Thumbnail List */}
+                    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                        {[product.imageUrl, ...product.images].map((img, index) => (
+                            <div 
+                                key={index}
+                                onClick={() => setMainImage(img)}
+                                className={`w-20 h-20 md:w-24 md:h-24 min-w-max rounded-xl border-2 cursor-pointer overflow-hidden transition-all
+                                    ${mainImage === img ? 'border-[#79A206] shadow-md' : 'border-gray-100 opacity-60 hover:opacity-100'}`}
+                            >
+                                <img src={img} alt="thumb" className="w-full h-full object-contain bg-white" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* 2. RIGHT SIDE: Product Info */}
+                <div className="flex flex-col space-y-6">
+                    <div>
+                        <span className="bg-[#79A206]/10 text-[#79A206] px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest">
+                            {product.category}
+                        </span>
+                        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#333] mt-4 leading-tight">
+                            {product.name}
+                        </h1>
+                        <div className="flex items-center gap-4 mt-4">
+                            <div className="flex text-yellow-400 text-sm">
+                                {[1, 2, 3, 4, 5].map(s => <i key={s} className="fa-solid fa-star"></i>)}
+                            </div>
+                            <span className="text-gray-400 text-sm font-medium border-l pl-4">( 42 Customer Reviews )</span>
+                        </div>
+                    </div>
+
+                    <div className="border-y border-gray-100 py-6">
+                        <div className="flex items-baseline gap-4">
+                            <span className="text-4xl font-black text-[#79A206]">₹{product.price}.00</span>
+                            <span className="text-xl text-gray-400 line-through font-medium">₹{product.price + 200}.00</span>
+                        </div>
+                        <p className="text-gray-500 mt-4 leading-relaxed text-lg">
+                            {product.description}
+                        </p>
+                    </div>
+
+                    {/* Stock & Quantity */}
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-10">
+                            <div className="flex items-center border border-gray-200 rounded-full px-4 py-2 w-max shadow-sm">
+                                <button 
+                                    onClick={() => quantity > 1 && setQuantity(quantity - 1)}
+                                    className="w-8 h-8 flex items-center justify-center hover:text-[#79A206] transition-colors"
+                                >
+                                    <i className="fa-solid fa-minus text-xs"></i>
+                                </button>
+                                <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                                <button 
+                                    onClick={() => setQuantity(quantity + 1)}
+                                    className="w-8 h-8 flex items-center justify-center hover:text-[#79A206] transition-colors"
+                                >
+                                    <i className="fa-solid fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                            
+                            <span className={`font-bold text-sm ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                <i className={`fa-solid ${product.stock > 0 ? 'fa-check-circle' : 'fa-times-circle'} mr-2`}></i>
+                                {product.stock > 0 ? `${product.stock} In Stock` : 'Out of Stock'}
+                            </span>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <button className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20">
+                                <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
+                            </button>
+                            <button className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all">
+                                <i className="fa-solid fa-bolt mr-3 text-yellow-400"></i> Buy Now
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Features List */}
+                    <div className="grid grid-cols-2 gap-4 pt-8">
+                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
+                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-truck-fast"></i></div>
+                            Fast Delivery
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
+                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-leaf"></i></div>
+                            100% Organic
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
+                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-shield-halved"></i></div>
+                            Safe Payments
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
+                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-rotate-left"></i></div>
+                            7 Days Return
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ProductDetails;
