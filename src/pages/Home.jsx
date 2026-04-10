@@ -20,38 +20,30 @@ const Home = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
 
     const location = useLocation();
-    
-    // URL-la irunthu query parameters-ah eduka (e.g., ?category=Organic)
-    const queryParams = new URLSearchParams(location.search);
-    const categoryFromURL = queryParams.get('category') || 'All';
+const queryParams = new URLSearchParams(location.search);
+const categoryFromURL = queryParams.get('category') || 'All';
+const searchFromURL = queryParams.get('search') || ""; // Add search param
 
-    // useEffect-la 'categoryFromURL'-ah use pannunga
 useEffect(() => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const url = categoryFromURL === 'All' 
-                ? 'http://192.168.1.6:5000/api/products' 
-                : `http://192.168.1.6:5000/api/products?category=${categoryFromURL}`;
+            let url = 'http://192.168.1.6:5000/api/products?';
+            
+            // Build Query URL dynamic-ah
+            if (categoryFromURL !== 'All') url += `category=${categoryFromURL}&`;
+            if (searchFromURL) url += `search=${searchFromURL}`;
             
             const response = await axios.get(url);
             setProducts(response.data);
             setLoading(false);
-
-            // --- Scroll Logic Starts Here ---
-            // 'All' thavira vera ethu select pannalum keela scroll aagum
-            if (categoryFromURL !== 'All') {
-                productSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-            }
-            // --- Scroll Logic Ends Here ---
-
         } catch (error) {
             console.error("Error fetching products:", error);
             setLoading(false);
         }
     };
     fetchProducts();
-}, [categoryFromURL]); // URL category maaruna intha full block run aagum
+}, [categoryFromURL, searchFromURL]); // Dependency updated// URL category maaruna intha full block run aagum
     // 2. Parallax Logic (Slider Movement)
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -214,10 +206,7 @@ useEffect(() => {
                                         </button>
                                     </div>
 
-                                    {/* Price Tag Overlay */}
-                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-[#79A206] border border-gray-100 shadow-sm">
-                                        Best Choice
-                                    </div>
+                                    
                                 </div>
 
                                 <div className="p-6 text-center">

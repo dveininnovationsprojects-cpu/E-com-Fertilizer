@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // useNavigate add panniyachu
+import API from '../api/axios';
 
 const Header = () => {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isAccountOpen, setIsAccountOpen] = useState(false); // Mobile account sub-menu
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
 
     // Temporary Auth State (Ippo false-nu veingga, backend connect pannum pothu user logic podalam)
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
@@ -20,6 +23,23 @@ const Header = () => {
             navigate(`/?category=${category}`); 
         }
     };
+    useEffect(() => {
+        const fetchSuggestions = async () => {
+            if (searchTerm.length > 0) {
+                try {
+                    // Backend logic: neenga type pannuna letter la start aagura product fetch aagum
+                    const response = await API.get(`/products?search=${searchTerm}`);
+                    setSearchResults(response.data);
+                } catch (error) {
+                    console.error("Search error", error);
+                }
+            } else {
+                setSearchResults([]);
+            }
+        };
+        const delayDebounce = setTimeout(() => fetchSuggestions(), 300); // Wait 300ms after typing
+        return () => clearTimeout(delayDebounce);
+    }, [searchTerm]);
 
     return (
         <header className="w-full bg-white border-b sticky top-0 z-[100] shadow-sm px-4 md:px-16 py-3">
@@ -51,15 +71,52 @@ const Header = () => {
                 <option>Tools</option>
                 <option>Seeds</option>
             </select>
-                    <input 
-                        type="text" 
-                        placeholder="Search Fertilizer..." 
-                        className="flex-1 px-4 outline-none text-sm bg-white" 
-                    />
-                    <button className="bg-white px-5 text-gray-400 hover:text-[#79A206] transition-colors">
-                        <i className="fa fa-search"></i>
-                    </button>
+                   <input 
+                type="text" 
+                placeholder="Search Fertilizer..." 
+                className="flex-1 px-4 outline-none text-sm bg-white"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button className="bg-white px-5 text-gray-400">
+                <i className="fa fa-search"></i>
+            </button>
+{/* --- Search Results Dropdown (Limited to search bar width) --- */}
+{searchResults.length > 0 && (
+    <div 
+        className="absolute top-[100%] left-0 w-full bg-white shadow-2xl rounded-b-xl border border-t-0 border-gray-100 z-[110] overflow-hidden animate-fadeIn"
+        style={{ 
+            maxHeight: '375px', // Exact-ah 5 products katanum
+            overflowY: 'auto' 
+        }}
+    >
+        {searchResults.map((p) => (
+            <div 
+                key={p._id}
+                onClick={() => {
+                    navigate(`/product/${p._id}`);
+                    setSearchTerm("");
+                }}
+                className="flex items-center gap-4 px-4 py-3 hover:bg-[#79A206]/5 cursor-pointer border-b border-gray-50 last:border-0 transition-all group"
+            >
+                {/* Image Thumbnail */}
+                <div className="w-12 h-12 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                    <img src={p.imageUrl} className="w-full h-full object-contain group-hover:scale-110 transition-transform" alt={p.name} />
                 </div>
+
+                {/* Product Info */}
+                <div className="flex flex-col overflow-hidden text-left">
+                    <span className="text-sm font-bold text-gray-800 truncate group-hover:text-[#79A206] transition-colors">{p.name}</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] bg-[#79A206]/10 text-[#79A206] px-2 py-0.5 rounded-full font-bold uppercase">{p.category}</span>
+                        <span className="text-sm font-black text-gray-700">₹{p.price}</span>
+                    </div>
+                </div>
+            </div>
+        ))}
+    </div>
+)}
+        </div>
 
                 {/* 3. Navigation Icons Section */}
                 <div className="flex items-center space-x-3 md:space-x-6 text-gray-700">

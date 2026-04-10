@@ -6,18 +6,19 @@ const AdminDashboard = () => {
     const [adminUser, setAdminUser] = useState({ name: 'Loading...', email: '' });
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
-    const [tickets, setTickets] = useState([]); // New state for Support Tickets
+    const [tickets, setTickets] = useState([]); 
+    const [customers, setCustomers] = useState([]); 
     const [activeTab, setActiveTab] = useState('dashboard');
     const [loading, setLoading] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(window.innerWidth > 1024);
-    const [showAddModal, setShowAddModal] = useState(false); // Add Product Modal
-    const [showLogoutModal, setShowLogoutModal] = useState(false); // Custom Logout Modal
+    const [showAddModal, setShowAddModal] = useState(false); 
+    const [showLogoutModal, setShowLogoutModal] = useState(false); 
     const [images, setImages] = useState([]);
     
-    // Forms State
+    // Forms State - Updated category to match schema default
     const [formData, setFormData] = useState({
-        name: '', category: 'Bio Fertilizer', price: '', stock: '', description: ''
+        name: '', category: 'Organic', price: '', stock: '', description: ''
     });
     const [profileData, setProfileData] = useState({ name: '', email: '' });
     const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -42,11 +43,10 @@ const AdminDashboard = () => {
         fetchData();
         fetchAdminProfile();
         
-        // Dynamic Window Resize Listener for Responsive Toggle
         const handleResize = () => {
             setIsDesktop(window.innerWidth > 1024);
             if (window.innerWidth > 1024) {
-                setIsSidebarOpen(false); // Reset sidebar state on desktop
+                setIsSidebarOpen(false); 
             }
         };
         
@@ -68,14 +68,19 @@ const AdminDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const [pRes, oRes, tRes] = await Promise.all([
-                API.get('/products'),
-                API.get('/admin/orders'),
-                API.get('/support') // Fetching Support Tickets
+            const [pRes, oRes, tRes, cRes] = await Promise.all([
+                API.get('/products').catch(() => ({ data: [] })),
+                API.get('/admin/orders').catch(() => ({ data: [] })),
+                API.get('/support').catch(() => ({ data: [] })),
+                API.get('/admin/users').catch(() => ({ data: [] }))
             ]);
             setProducts(pRes.data);
             setOrders(oRes.data);
             setTickets(tRes.data || []);
+            
+            const usersList = cRes.data || [];
+            setCustomers(usersList.filter(user => user.role !== 'admin'));
+            
         } catch (err) {
             console.error("Dashboard Sync Error");
         }
@@ -92,7 +97,7 @@ const AdminDashboard = () => {
         try {
             await API.post('/admin/products', data);
             alert("Inventory updated successfully.");
-            setFormData({ name: '', category: 'Bio Fertilizer', price: '', stock: '', description: '' });
+            setFormData({ name: '', category: 'Organic', price: '', stock: '', description: '' });
             setImages([]);
             setShowAddModal(false); 
             fetchData();
@@ -137,17 +142,15 @@ const AdminDashboard = () => {
         }
     };
 
-    // Custom Logout Logic
     const handleLogoutClick = () => {
-        setShowLogoutModal(true); // Open custom modal instead of browser alert
+        setShowLogoutModal(true); 
     };
 
     const confirmLogout = async () => {
         try {
             await API.post('/users/logout');
-            window.location.href = '/'; // Direct to home page
+            window.location.href = '/'; 
         } catch (err) {
-            // Force redirect even if API fails
             window.location.href = '/';
         }
     };
@@ -163,7 +166,6 @@ const AdminDashboard = () => {
             color: theme.text
         },
 
-        // SIDEBAR
         sidebar: {
             width: '260px',
             backgroundColor: theme.sidebar,
@@ -237,7 +239,6 @@ const AdminDashboard = () => {
             transition: 'all 0.2s'
         },
 
-        // MOBILE HEADER
         mobileHeader: {
             display: isDesktop ? 'none' : 'flex',
             alignItems: 'center',
@@ -263,7 +264,6 @@ const AdminDashboard = () => {
             fontWeight: '600'
         },
 
-        // MAIN CONTENT
         main: {
             flex: 1,
             padding: isDesktop ? '40px 5%' : '100px 5% 50px 5%',
@@ -301,7 +301,6 @@ const AdminDashboard = () => {
             transition: 'background-color 0.2s'
         },
 
-        // CARDS & GRIDS
         card: {
             backgroundColor: theme.white,
             padding: '25px',
@@ -333,7 +332,6 @@ const AdminDashboard = () => {
             color: theme.text
         },
 
-        // MODAL STYLES
         modalOverlay: {
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
@@ -344,6 +342,7 @@ const AdminDashboard = () => {
             alignItems: 'center',
             backdropFilter: 'blur(3px)'
         },
+        
         modalContent: {
             backgroundColor: theme.white,
             padding: '30px',
@@ -355,6 +354,7 @@ const AdminDashboard = () => {
             boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
             position: 'relative'
         },
+        
         closeBtn: {
             position: 'absolute',
             top: '20px',
@@ -366,12 +366,14 @@ const AdminDashboard = () => {
             color: theme.subText,
             lineHeight: '1'
         },
+        
         modalActionRow: {
             display: 'flex',
             justifyContent: 'flex-end',
             gap: '12px',
             marginTop: '25px'
         },
+        
         cancelBtn: {
             background: '#f1f3f0',
             color: theme.text,
@@ -382,6 +384,7 @@ const AdminDashboard = () => {
             fontWeight: '600',
             fontSize: '14px'
         },
+        
         dangerBtn: {
             background: theme.danger,
             color: '#fff',
@@ -393,7 +396,6 @@ const AdminDashboard = () => {
             fontSize: '14px'
         },
 
-        // FORMS
         formGroup: {
             marginBottom: '18px'
         },
@@ -433,7 +435,6 @@ const AdminDashboard = () => {
             transition: 'background-color 0.2s'
         },
 
-        // TABLES
         tableContainer: {
             overflowX: 'auto'
         },
@@ -461,15 +462,25 @@ const AdminDashboard = () => {
             verticalAlign: 'middle'
         },
 
-        statusBadge: (status) => ({
-            padding: '4px 10px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            fontWeight: '500',
-            backgroundColor: status === 'Delivered' ? '#eefaf3' : '#fdf6e9',
-            color: status === 'Delivered' ? theme.success : '#f39c12',
-            display: 'inline-block'
-        })
+        statusBadge: (status) => {
+            let bgColor = '#fdf6e9';
+            let txtColor = '#f39c12';
+            
+            if (status === 'Delivered') { bgColor = '#eefaf3'; txtColor = theme.success; }
+            if (status === 'Cancelled') { bgColor = '#fdeaea'; txtColor = theme.danger; }
+            if (status === 'Shipped') { bgColor = '#eaf4ff'; txtColor = '#3498db'; }
+            if (status === 'Delivery Processed') { bgColor = '#f4eaff'; txtColor = '#9b59b6'; }
+
+            return {
+                padding: '4px 10px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: '500',
+                backgroundColor: bgColor,
+                color: txtColor,
+                display: 'inline-block'
+            };
+        }
     };
 
     // --- 5. RENDER COMPONENTS ---
@@ -501,6 +512,9 @@ const AdminDashboard = () => {
                     </div>
                     <div onClick={() => {setActiveTab('orders'); setIsSidebarOpen(false)}} style={s.navItem(activeTab === 'orders')}>
                         Orders
+                    </div>
+                    <div onClick={() => {setActiveTab('customers'); setIsSidebarOpen(false)}} style={s.navItem(activeTab === 'customers')}>
+                        Customers
                     </div>
                     <div onClick={() => {setActiveTab('support'); setIsSidebarOpen(false)}} style={s.navItem(activeTab === 'support')}>
                         Support Tickets
@@ -534,7 +548,6 @@ const AdminDashboard = () => {
                             <h2 style={s.pageTitle}>System Overview</h2>
                         </div>
                         
-                        {/* Dynamic Welcome Banner */}
                         <div style={{...s.card, backgroundColor: theme.primary, color: '#fff', border: 'none', padding: '35px', display: 'flex', flexDirection: 'column', gap: '8px'}}>
                             <h2 style={{margin: '0', fontSize: '24px', fontWeight: '600'}}>Welcome back, {adminUser.name}</h2>
                             <p style={{margin: 0, opacity: 0.9, fontSize: '15px', fontWeight: '400'}}>Here is the latest performance overview of your Saral-X business today.</p>
@@ -610,6 +623,7 @@ const AdminDashboard = () => {
                                             <th style={s.th}>Category</th>
                                             <th style={s.th}>Stock</th>
                                             <th style={s.th}>Price</th>
+                                            <th style={s.th}>Rating</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -624,11 +638,12 @@ const AdminDashboard = () => {
                                                 <td style={{...s.td, color: theme.subText}}>{p.category}</td>
                                                 <td style={s.td}>{p.stock}</td>
                                                 <td style={{...s.td, fontWeight: '500'}}>₹{p.price.toLocaleString('en-IN')}</td>
+                                                <td style={{...s.td, color: theme.subText}}>★ {p.rating || 0}</td>
                                             </tr>
                                         ))}
                                         {products.length === 0 && (
                                             <tr>
-                                                <td colSpan="4" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>Catalog is empty. Click "+ Add Fertilizer" to start.</td>
+                                                <td colSpan="5" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>Catalog is empty. Click "+ Add Fertilizer" to start.</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -687,10 +702,10 @@ const AdminDashboard = () => {
                                                 value={formData.category}
                                                 onChange={e => setFormData({...formData, category: e.target.value})}
                                             >
-                                                <option>Bio Fertilizer</option>
-                                                <option>Organic Manure</option>
-                                                <option>Nursery Plants</option>
-                                                <option>Quality Seeds</option>
+                                                <option>Organic</option>
+                                                <option>Chemical</option>
+                                                <option>Tools</option>
+                                                <option>Seeds</option>
                                             </select>
                                         </div>
 
@@ -705,7 +720,7 @@ const AdminDashboard = () => {
                                         </div>
 
                                         <div style={s.formGroup}>
-                                            <label style={s.label}>Product Images (Max 5)</label>
+                                            <label style={s.label}>Product Images</label>
                                             <input 
                                                 type="file" 
                                                 multiple 
@@ -732,33 +747,50 @@ const AdminDashboard = () => {
                         </div>
                         
                         {orders.length > 0 ? (
-                            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px'}}>
+                            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px'}}>
                                 {orders.map(o => (
                                     <div key={o._id} style={{...s.card, marginBottom: '0'}}>
                                         <div style={{display: 'flex', justifyContent: 'space-between', borderBottom: `1px solid ${theme.border}`, paddingBottom: '12px', marginBottom: '15px'}}>
-                                            <span style={{fontSize: '13px', color: theme.subText}}>Order ID: #{o._id.slice(-6).toUpperCase()}</span>
+                                            <span style={{fontSize: '13px', color: theme.subText, fontWeight: '600'}}>ID: #{o._id.slice(-6).toUpperCase()}</span>
                                             <span style={s.statusBadge(o.status)}>{o.status}</span>
                                         </div>
                                         
                                         <div style={{fontSize: '15px', fontWeight: '600', marginBottom: '4px'}}>{o.user?.name || "Customer"}</div>
-                                        <div style={{fontSize: '13px', color: theme.subText, lineHeight: '1.4'}}>{o.shippingAddress}</div>
+                                        <div style={{fontSize: '13px', color: theme.subText, lineHeight: '1.4', marginBottom: '8px'}}>{o.shippingAddress}</div>
                                         
-                                        <div style={{fontSize: '20px', fontWeight: '600', color: theme.text, marginTop: '20px'}}>
+                                        <div style={{fontSize: '13px', color: theme.subText, marginBottom: '4px'}}>
+                                            Payment: <span style={{color: o.paymentStatus === 'Verified' ? theme.success : '#f39c12', fontWeight: '600'}}>{o.paymentStatus || 'Pending'}</span>
+                                        </div>
+                                        <div style={{fontSize: '13px', color: theme.subText, marginBottom: '8px'}}>
+                                            WhatsApp Update: <span style={{fontWeight: '600'}}>{o.whatsappSent ? 'Sent' : 'Pending'}</span>
+                                        </div>
+                                        
+                                        <div style={{fontSize: '13px', color: theme.subText, borderTop: `1px dashed ${theme.border}`, paddingTop: '10px'}}>
+                                            Items: {o.orderItems?.length || 0} product(s)
+                                        </div>
+                                        
+                                        <div style={{fontSize: '20px', fontWeight: '700', color: theme.text, marginTop: '15px'}}>
                                             ₹{o.totalAmount.toLocaleString('en-IN')}
                                         </div>
                                         
-                                        <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
+                                        <div style={{display: 'flex', gap: '8px', marginTop: '20px'}}>
+                                            <button 
+                                                onClick={() => handleStatusUpdate(o._id, 'Delivery Processed')} 
+                                                style={{flex: 1, padding: '8px', borderRadius: '4px', border: `1px solid ${theme.border}`, backgroundColor: '#fff', color: theme.text, fontSize: '12px', fontWeight: '500', cursor: 'pointer'}}
+                                            >
+                                                Process
+                                            </button>
                                             <button 
                                                 onClick={() => handleStatusUpdate(o._id, 'Shipped')} 
-                                                style={{flex: 1, padding: '10px', borderRadius: '4px', border: `1px solid ${theme.border}`, backgroundColor: '#fff', color: theme.text, fontSize: '13px', fontWeight: '500', cursor: 'pointer'}}
+                                                style={{flex: 1, padding: '8px', borderRadius: '4px', border: `1px solid ${theme.border}`, backgroundColor: '#fff', color: theme.text, fontSize: '12px', fontWeight: '500', cursor: 'pointer'}}
                                             >
-                                                Mark Shipped
+                                                Ship
                                             </button>
                                             <button 
                                                 onClick={() => handleStatusUpdate(o._id, 'Delivered')} 
-                                                style={{flex: 1, padding: '10px', borderRadius: '4px', border: 'none', backgroundColor: theme.primary, color: '#fff', fontSize: '13px', fontWeight: '500', cursor: 'pointer'}}
+                                                style={{flex: 1, padding: '8px', borderRadius: '4px', border: 'none', backgroundColor: theme.primary, color: '#fff', fontSize: '12px', fontWeight: '500', cursor: 'pointer'}}
                                             >
-                                                Mark Delivered
+                                                Deliver
                                             </button>
                                         </div>
                                     </div>
@@ -783,7 +815,49 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* --- SUPPORT TICKETS (NEW MODULE) --- */}
+                {/* --- CUSTOMERS LIST --- */}
+                {activeTab === 'customers' && (
+                    <div style={{ animation: 'fadeIn 0.3s ease' }}>
+                        <div style={s.headerAction}>
+                            <h2 style={s.pageTitle}>Customer Directory</h2>
+                        </div>
+                        
+                        <div style={s.card}>
+                            <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Registered Customers</h3>
+                            <div style={s.tableContainer}>
+                                <table style={s.table}>
+                                    <thead>
+                                        <tr>
+                                            <th style={s.th}>Name</th>
+                                            <th style={s.th}>Email Address</th>
+                                            <th style={s.th}>Phone Number</th>
+                                            <th style={s.th}>Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {customers.map(c => (
+                                            <tr key={c._id}>
+                                                <td style={{...s.td, fontWeight: '500'}}>{c.name}</td>
+                                                <td style={{...s.td, color: theme.subText}}>{c.email}</td>
+                                                <td style={{...s.td, color: theme.subText}}>{c.phone || 'Not Provided'}</td>
+                                                <td style={{...s.td, color: theme.subText}}>{c.address || 'Not Provided'}</td>
+                                            </tr>
+                                        ))}
+                                        {customers.length === 0 && (
+                                            <tr>
+                                                <td colSpan="4" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>
+                                                    No registered customers found. Please ensure the GET /api/admin/users route exists in your backend.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- SUPPORT TICKETS --- */}
                 {activeTab === 'support' && (
                     <div style={{ animation: 'fadeIn 0.3s ease' }}>
                         <div style={s.headerAction}>
@@ -799,6 +873,7 @@ const AdminDashboard = () => {
                                             <th style={s.th}>Customer Name</th>
                                             <th style={s.th}>Subject</th>
                                             <th style={s.th}>Message Details</th>
+                                            <th style={s.th}>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -809,11 +884,30 @@ const AdminDashboard = () => {
                                                 <td style={{...s.td, color: theme.subText, maxWidth: '300px', lineHeight: '1.5'}}>
                                                     {t.message}
                                                 </td>
+                                                <td style={s.td}>
+                                                    {t.user?.email && (
+                                                        <a 
+                                                            href={`mailto:${t.user.email}?subject=Re: ${t.subject}`}
+                                                            style={{
+                                                                padding: '8px 16px', 
+                                                                backgroundColor: theme.primary, 
+                                                                color: '#fff', 
+                                                                textDecoration: 'none', 
+                                                                borderRadius: '6px', 
+                                                                fontSize: '13px', 
+                                                                fontWeight: '600',
+                                                                display: 'inline-block'
+                                                            }}
+                                                        >
+                                                            Reply via Email
+                                                        </a>
+                                                    )}
+                                                </td>
                                             </tr>
                                         ))}
                                         {tickets.length === 0 && (
                                             <tr>
-                                                <td colSpan="3" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>
+                                                <td colSpan="4" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>
                                                     No support tickets found.
                                                 </td>
                                             </tr>
@@ -903,7 +997,7 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* --- COMPANY PROFILE (STATIC INFO) --- */}
+                {/* --- COMPANY PROFILE --- */}
                 {activeTab === 'company' && (
                     <div style={{ animation: 'fadeIn 0.3s ease', maxWidth: '100%' }}>
                         <div style={s.headerAction}>
