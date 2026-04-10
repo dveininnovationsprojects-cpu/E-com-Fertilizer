@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from './components/ProtectedRoute'; // Security-kaga namma add panna puthu import
 import ProductDetails from './pages/ProductDetails';
+import Profile from "./pages/Profile";
+import OrderHistory from "./pages/OrderHistory";
 
 // Header & Footer conditionally render pandra wrapper
 const LayoutWrapper = ({ children }) => {
@@ -40,6 +42,8 @@ function App() {
         <Routes>
           {/* Public Routes - Yaar venaalum paarkalam */}
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -54,6 +58,8 @@ function App() {
             } 
           />
 <Route path="/product/:id" element={<ProductDetails />} />
+<Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+<Route path="/order-history" element={<PrivateRoute><OrderHistory /></PrivateRoute>} />
         </Routes>
       </LayoutWrapper>
     </Router>
