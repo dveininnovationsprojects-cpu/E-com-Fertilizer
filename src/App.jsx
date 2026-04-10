@@ -1,3 +1,4 @@
+import AdminDashboard from "./pages/AdminDashboard"; // Namma create panna dashboard import
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import AdminDashboard from "./pages/AdminDashboard"; 
 import Home from './pages/Home';
@@ -7,6 +8,7 @@ import Footer from './components/Footer';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from './components/ProtectedRoute'; // Security-kaga namma add panna puthu import
+import ProductDetails from './pages/ProductDetails';
 
 // Header & Footer conditionally render pandra wrapper
 const LayoutWrapper = ({ children }) => {
@@ -51,6 +53,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+<Route path="/product/:id" element={<ProductDetails />} />
         </Routes>
       </LayoutWrapper>
     </Router>
