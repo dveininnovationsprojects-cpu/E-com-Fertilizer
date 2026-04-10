@@ -6,8 +6,10 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ProtectedRoute from './components/ProtectedRoute'; // Security-kaga namma add panna puthu import
+import ProtectedRoute from './components/ProtectedRoute'; // Security component
 import ProductDetails from './pages/ProductDetails';
+import Profile from "./pages/Profile";
+import OrderHistory from "./pages/OrderHistory";
 
 // Header & Footer conditionally render pandra wrapper
 const LayoutWrapper = ({ children }) => {
@@ -17,6 +19,7 @@ const LayoutWrapper = ({ children }) => {
   const hideHeaderFooter = 
     location.pathname.startsWith('/admin') || 
     location.pathname.startsWith('/login') || 
+    location.pathname.startsWith('/profile')||
     location.pathname.startsWith('/register');
 
   return (
@@ -41,6 +44,9 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          
+          {/* Protected Admin Route - Admin mattum thaan access panna mudiyum */}
           <Route 
             path="/admin" 
             element={
@@ -49,7 +55,24 @@ function App() {
               </ProtectedRoute>
             } 
           />
-<Route path="/product/:id" element={<ProductDetails />} />
+
+          {/* Protected User Routes - Log in panna normal users mattum paarkalam */}
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/order-history" 
+            element={
+              <ProtectedRoute>
+                <OrderHistory />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </LayoutWrapper>
     </Router>

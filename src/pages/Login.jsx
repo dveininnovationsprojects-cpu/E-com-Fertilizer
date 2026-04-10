@@ -29,17 +29,21 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await API.post("auth/login", { email, password });
+      const res = await API.post("/auth/login", { email, password });
 
       if (res.data.success || res.status === 200) {
         // Save user details correctly based on backend response
         localStorage.setItem("user", JSON.stringify(res.data));
         
-        // Setup Modal Data using direct res.data properties
-        const role = res.data.role; // Corrected: Reading directly from res.data
+        // Setup Modal Data using robust property checking
+        const role = res.data.role || res.data.user?.role; 
+        const name = res.data.name || res.data.user?.name || "User";
+        
         setUserRole(role);
-        setUserName(res.data.name || "User");
-        setRedirectPath(role === 'admin' ? '/admin' : '/');
+        setUserName(name);
+        
+        // FIX: Route admins to '/admin' and all normal users to '/profile'
+        setRedirectPath(role === 'admin' ? '/admin' : '/profile');
         
         // Show Success Popup
         setShowSuccessModal(true);
@@ -180,10 +184,10 @@ const Login = () => {
             <h3 style={styles.modalTitle}>Login Successful</h3>
             <p style={styles.modalText}>
               Welcome back, <strong>{userName}</strong>!<br/>
-              Redirecting you to the {userRole === 'admin' ? 'Admin Dashboard' : 'Store'}...
+              Redirecting you to the {userRole === 'admin' ? 'Admin Dashboard' : 'Profile'}...
             </p>
             <button onClick={handleProceed} style={styles.proceedBtn}>
-              Continue to {userRole === 'admin' ? 'Dashboard' : 'Store'}
+              Continue to {userRole === 'admin' ? 'Dashboard' : 'Profile'}
             </button>
           </div>
         </div>
