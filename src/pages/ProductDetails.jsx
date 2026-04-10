@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react'; // PUDHUSA ADD PANNATHU: useContext
 import { useParams } from 'react-router-dom';
 import API from "../api/axios";
 import { motion } from 'framer-motion';
+import { CartContext } from '../context/CartContext'; // PUDHUSA ADD PANNATHU: Namma CartContext
 
 const ProductDetails = () => {
-    const { id } = useParams(); // URL-la irunthu product ID edukkum
+    const { id } = useParams(); 
     const [product, setProduct] = useState(null);
     const [mainImage, setMainImage] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
+
+    // PUDHUSA ADD PANNATHU: Context-la irunthu addToCart function-a edukkurom
+    const { addToCart } = useContext(CartContext);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -23,7 +27,7 @@ const ProductDetails = () => {
             }
         };
         fetchProduct();
-        window.scrollTo(0, 0); // Page open aagum pothu top-ku scroll pannum
+        window.scrollTo(0, 0); 
     }, [id]);
 
     if (loading) return (
@@ -120,9 +124,20 @@ const ProductDetails = () => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <button className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20">
+                            {/* PUDHUSA ADD PANNATHU: onClick function-la addToCart() call panrom */}
+                            <button 
+                                onClick={() => {
+                                    if(product.stock > 0) {
+                                        addToCart({ ...product, selectedQty: quantity });
+                                    } else {
+                                        alert("Stock illada mamey!");
+                                    }
+                                }}
+                                className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20"
+                            >
                                 <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
                             </button>
+                            
                             <button className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all">
                                 <i className="fa-solid fa-bolt mr-3 text-yellow-400"></i> Buy Now
                             </button>
