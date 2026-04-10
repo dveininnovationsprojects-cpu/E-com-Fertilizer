@@ -194,6 +194,19 @@ const AdminDashboard = () => {
         }
     };
 
+    // DELETE PRODUCT LOGIC
+    const handleDeleteProduct = async (id) => {
+        if (window.confirm("Are you sure you want to delete this product?")) {
+            try {
+                await API.delete(`/admin/products/${id}`);
+                alert("Product deleted successfully.");
+                fetchData(); // Refresh the product list
+            } catch (err) {
+                alert(err.response?.data?.message || "Failed to delete product.");
+            }
+        }
+    };
+
     const handleStatusUpdate = async (order, status) => {
         try {
             const isVerified = paymentToggles[order._id] !== undefined 
@@ -381,6 +394,7 @@ const AdminDashboard = () => {
         th: { textAlign: 'left', padding: '15px', color: theme.subText, fontSize: '13px', fontWeight: '500', borderBottom: `1px solid ${theme.border}`, backgroundColor: '#fcfcfc' },
         td: { padding: '15px', fontSize: '14px', borderBottom: `1px solid ${theme.border}`, verticalAlign: 'middle' },
         editTextBtn: { background: 'transparent', border: 'none', color: '#3498db', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline', fontSize: '13px' },
+        deleteTextBtn: { background: 'transparent', border: 'none', color: theme.danger, fontWeight: '600', cursor: 'pointer', textDecoration: 'underline', fontSize: '13px' },
         statusBadge: (status) => {
             let bgColor = '#fdf6e9';
             let txtColor = '#f39c12';
@@ -555,7 +569,10 @@ const AdminDashboard = () => {
                                                     {p.description || 'N/A'}
                                                 </td>
                                                 <td style={s.td}>
-                                                    <button onClick={() => openEditModal(p)} style={s.editTextBtn}>Edit</button>
+                                                    <div style={{display: 'flex', gap: '12px'}}>
+                                                        <button onClick={() => openEditModal(p)} style={s.editTextBtn}>Edit</button>
+                                                        <button onClick={() => handleDeleteProduct(p._id)} style={s.deleteTextBtn}>Delete</button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -602,10 +619,10 @@ const AdminDashboard = () => {
                                         <div style={s.formGroup}>
                                             <label style={s.label}>Category</label>
                                             <select style={s.input} value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                                                <option>Organic</option>
-                                                <option>Chemical</option>
-                                                <option>Tools</option>
-                                                <option>Seeds</option>
+                                                <option>Bio Fertilizer</option>
+                                                <option>Organic Manure</option>
+                                                <option>Nursery Plants</option>
+                                                <option>Quality Seeds</option>
                                             </select>
                                         </div>
 
@@ -932,7 +949,7 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {/* --- COMPANY PROFILE --- */}
+                {/* --- COMPANY PROFILE (STATIC INFO) --- */}
                 {activeTab === 'company' && (
                     <div style={{ animation: 'fadeIn 0.3s ease', maxWidth: '100%' }}>
                         <div style={s.headerAction}>
