@@ -35,10 +35,12 @@ const Login = () => {
         // Save user details correctly based on backend response
         localStorage.setItem("user", JSON.stringify(res.data));
         
-        // Setup Modal Data using direct res.data properties
-        const role = res.data.role; // Corrected: Reading directly from res.data
+        // Setup Modal Data using robust property checking
+        const role = res.data.role || res.data.user?.role; 
+        const name = res.data.name || res.data.user?.name || "User";
+        
         setUserRole(role);
-        setUserName(res.data.name || "User");
+        setUserName(name);
         setRedirectPath(role === 'admin' ? '/admin' : '/');
         
         // Show Success Popup

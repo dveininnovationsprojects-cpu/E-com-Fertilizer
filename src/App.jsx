@@ -1,4 +1,4 @@
-import AdminDashboard from "./pages/AdminDashboard"; // Namma create panna dashboard import
+// Namma create panna dashboard import
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import AdminDashboard from "./pages/AdminDashboard"; 
 import Home from './pages/Home';
@@ -53,7 +53,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
-<Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
         </Routes>
       </LayoutWrapper>
     </Router>
