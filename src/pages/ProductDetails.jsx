@@ -11,7 +11,7 @@ const ProductDetails = () => {
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
 
-    // PUDHUSA ADD PANNATHU: Context-la irunthu addToCart function-a edukkurom
+    
     const { addToCart } = useContext(CartContext);
 
     useEffect(() => {
@@ -45,8 +45,7 @@ const ProductDetails = () => {
             quantity: quantity
         });
 
-        // Add to Cart mattum kudutha ethuvum panna vendam (silent add)
-        // Buy Now kudutha mattum cart page-ku poganum
+
         if (shouldNavigate) {
             navigate('/cart');
         }
