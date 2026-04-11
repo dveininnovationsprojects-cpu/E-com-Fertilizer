@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // useNavigate add panniyachu
 import API from '../api/axios';
+import { CartContext } from '../context/CartContext';
 
 const Header = () => {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isAccountOpen, setIsAccountOpen] = useState(false); // Mobile account sub-menu
+    const [isAccountOpen, setIsAccountOpen] = useState(false); 
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
 
+    // Temporary Auth State 
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const navigate = useNavigate();
 
+    // PUDHUSA ADD PANNATHU: Cart details edukkurom
+    const { cart } = useContext(CartContext);
+    const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
     const handleCategoryChange = (e) => {
         const category = e.target.value;
@@ -129,6 +134,16 @@ const Header = () => {
                         <i className="fa-solid fa-cart-shopping text-xl"></i>
                         <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">0</span>
                     </div>
+                    
+                    {/* PUDHUSA ADD PANNATHU: Link tag and dynamic cartCount */}
+                    <Link to="/cart" className="relative cursor-pointer hover:text-[#79A206] transition-all group">
+                        <i className="fa-solid fa-cart-shopping text-xl"></i>
+                        {cartCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">
+                                {cartCount}
+                            </span>
+                        )}
+                    </Link>
 
                   <div className="hidden md:relative md:block">
     <div 

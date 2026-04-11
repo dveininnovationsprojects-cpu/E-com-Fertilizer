@@ -6,6 +6,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+
+import Cart from './pages/Cart'; // PUDHUSA ADD PANNATHU: Cart import
 import ProtectedRoute from './components/ProtectedRoute'; // Security component
 import ProductDetails from './pages/ProductDetails';
 import Profile from "./pages/Profile";
@@ -41,7 +43,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/product/:id" element={<ProductDetails />} />
-          
+          <Route path="/cart" element={<Cart />} />
           {/* Protected Admin Route - Admin mattum thaan access panna mudiyum */}
           <Route 
             path="/admin" 

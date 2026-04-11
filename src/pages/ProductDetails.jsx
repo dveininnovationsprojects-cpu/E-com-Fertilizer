@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react'; // PUDHUSA ADD PANNATHU: useContext
 import { useParams } from 'react-router-dom';
 import API from "../api/axios";
 import { motion } from 'framer-motion';
+import { CartContext } from '../context/CartContext'; // PUDHUSA ADD PANNATHU: Namma CartContext
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -9,6 +10,9 @@ const ProductDetails = () => {
     const [mainImage, setMainImage] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
+
+    // PUDHUSA ADD PANNATHU: Context-la irunthu addToCart function-a edukkurom
+    const { addToCart } = useContext(CartContext);
 
     useEffect(() => {
         const fetchProduct = async () => {
