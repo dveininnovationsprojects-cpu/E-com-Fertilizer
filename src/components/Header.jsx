@@ -117,11 +117,12 @@ const Header = () => {
                 {/* 3. Navigation Icons Section */}
                 <div className="flex items-center space-x-3 md:space-x-6 text-gray-700">
                     {/* Desktop Text-less Icons */}
-                    <div className="hidden md:flex items-center space-x-5 mr-4 border-r pr-6 border-gray-200">
-                        <Link to="/" title="Home" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-house"></i></Link>
-                        <Link to="/about" title="About Us" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-circle-info"></i></Link>
-                        <Link to="/contact" title="Contact" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-phone-volume"></i></Link>
-                    </div>
+                    {/* Desktop Navigation Icons Section */}
+<div className="hidden md:flex items-center space-x-5 mr-4 border-r pr-6 border-gray-200">
+    <Link to="/" title="Home" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-house"></i></Link>
+    <Link to="/about" title="About Us" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-circle-info"></i></Link>
+
+</div>
                     
                     {/* Cart */}
                     <div className="relative cursor-pointer hover:text-[#79A206] transition-all group">
@@ -181,10 +182,16 @@ const Header = () => {
                             <i className="fa-solid fa-xmark text-xl text-gray-400" onClick={() => setIsMenuOpen(false)}></i>
                         </div>
                         
-                        <ul className="flex flex-col space-y-5 font-bold text-gray-700">
-                            <li><Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-house text-[#79A206]"></i> Home</Link></li>
-                            <li><Link to="/about" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-circle-info text-[#79A206]"></i> About Us</Link></li>
-                            <li><Link to="/contact" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-phone text-[#79A206]"></i> Contact</Link></li>
+<ul className="flex flex-col space-y-5 font-bold text-gray-700">
+    <li><Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-house text-[#79A206]"></i> Home</Link></li>
+    <li><Link to="/about" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-circle-info text-[#79A206]"></i> About Us</Link></li>
+    
+    {/* NEW CART OPTION IN SIDEBAR */}
+    <li>
+        <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3">
+            <i className="fa-solid fa-cart-shopping text-[#79A206]"></i> My Cart
+        </Link>
+    </li>
                             
                             {/* Mobile Account Sub-menu */}
                             <li className="border-t pt-4">
@@ -201,17 +208,13 @@ const Header = () => {
             <>
                 <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
                 <li><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
-                {/* NEW PROFILE BUTTON ADDED HERE */}
-                <li>
-                    <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-[#79A206]">
-                        <i className="fa-solid fa-id-card-clip"></i> My Profile
-                    </Link>
-                </li>
+                {/* Profile button same grey style-la (No Icon) */}
+                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
             </>
         ) : (
             <>
-                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>View Profile</Link></li>
-                <li className="text-red-500 cursor-pointer">Logout</li>
+                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
+                <li className="text-red-500 cursor-pointer" onClick={handleLogout}>Logout</li>
             </>
         )}
     </ul>

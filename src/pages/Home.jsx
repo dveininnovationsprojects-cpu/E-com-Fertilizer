@@ -28,7 +28,6 @@ useEffect(() => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            // Logic: build clean query string
             const params = new URLSearchParams();
             if (categoryFromURL && categoryFromURL !== 'All') {
                 params.append('category', categoryFromURL);
@@ -43,7 +42,7 @@ useEffect(() => {
             setProducts(response.data);
             setLoading(false);
 
-            // Auto-scroll logic
+           
             if (categoryFromURL && categoryFromURL !== 'All') {
                 setTimeout(() => {
                     productSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -55,7 +54,7 @@ useEffect(() => {
         }
     };
     fetchProducts();
-}, [categoryFromURL, searchFromURL]);    // 2. Parallax Logic (Slider Movement)
+}, [categoryFromURL, searchFromURL]);
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const smoothX = useSpring(mouseX, { stiffness: 100, damping: 10 });

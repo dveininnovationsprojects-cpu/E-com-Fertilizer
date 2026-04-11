@@ -10,12 +10,11 @@ import ProtectedRoute from './components/ProtectedRoute'; // Security component
 import ProductDetails from './pages/ProductDetails';
 import Profile from "./pages/Profile";
 import OrderHistory from "./pages/OrderHistory";
+import { Toaster } from 'react-hot-toast';
 
-// Header & Footer conditionally render pandra wrapper
+
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
-  
-  // Intha 3 paths-la iruntha Header & Footer hide aaganum
   const hideHeaderFooter = 
     location.pathname.startsWith('/admin') || 
     location.pathname.startsWith('/login') || 
@@ -24,12 +23,8 @@ const LayoutWrapper = ({ children }) => {
 
   return (
     <>
-      {/* hideHeaderFooter false-ah iruntha mattum thaan Header varum */}
-      {!hideHeaderFooter && <Header />}
-      
+      {!hideHeaderFooter && <Header />}  
       {children}
-      
-      {/* hideHeaderFooter false-ah iruntha mattum thaan Footer varum */}
       {!hideHeaderFooter && <Footer />}
     </>
   );
@@ -38,6 +33,7 @@ const LayoutWrapper = ({ children }) => {
 function App() {
   return (
     <Router>
+      <Toaster position="top-center" reverseOrder={false} />
       <LayoutWrapper>
         <Routes>
           <Route path="/" element={<Home />} />

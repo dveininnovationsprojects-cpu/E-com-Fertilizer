@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
+import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
-    // --- 1. STATE MANAGEMENT ---
     const [adminUser, setAdminUser] = useState({ name: 'Loading...', email: '' });
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
@@ -154,6 +154,11 @@ const AdminDashboard = () => {
         setImages([]);
         setShowAddModal(true);
     };
+    const removeImage = (index) => {
+    const newImages = [...images];
+    newImages.splice(index, 1);
+    setImages(newImages);
+};
 
     const handleProductSubmit = async (e) => {
         e.preventDefault();
@@ -181,25 +186,24 @@ const AdminDashboard = () => {
                 await API.post('/admin/products', data, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                alert("Product added successfully.");
+                toast.success(editMode ? "Product updated!" : "Product added!");
             }
             setFormData({ name: '', category: 'Organic', price: '', stock: '', description: '' });
             setImages([]);
             setShowAddModal(false); 
             fetchData();
         } catch (err) {
-            alert(err.response?.data?.message || "Sync failed. Check your network or server.");
+            toast.error(err.response?.data?.message || "Operation failed");
         } finally {
             setLoading(false);
         }
     };
 
-    // DELETE PRODUCT LOGIC
     const handleDeleteProduct = async (id) => {
         if (window.confirm("Are you sure you want to delete this product?")) {
             try {
                 await API.delete(`/admin/products/${id}`);
-                alert("Product deleted successfully.");
+                toast.success("Product deleted successfully.");
                 fetchData(); // Refresh the product list
             } catch (err) {
                 alert(err.response?.data?.message || "Failed to delete product.");
@@ -229,7 +233,7 @@ const AdminDashboard = () => {
         e.preventDefault();
         try {
             await API.put('auth/profile', profileData);
-            alert("Profile updated successfully.");
+            toast.success("Profile updated successfully!");
             setAdminUser(prev => ({ ...prev, name: profileData.name, email: profileData.email }));
             
             const storedUserStr = localStorage.getItem('user');
@@ -255,7 +259,7 @@ const AdminDashboard = () => {
         if (passwordData.newPassword !== passwordData.confirmPassword) return alert("New passwords do not match.");
         try {
             await API.put('auth/profile', { password: passwordData.newPassword });
-            alert("Password changed successfully.");
+            toast.success("Password changed successfully!");;
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (err) {
             alert(err.response?.data?.message || "Failed to change password.");
@@ -632,9 +636,46 @@ const AdminDashboard = () => {
                                         </div>
 
                                         <div style={s.formGroup}>
-                                            <label style={s.label}>{editMode ? 'Upload New Images (Optional)' : 'Product Images (Max 5)'}</label>
-                                            <input type="file" multiple style={{fontSize: '13px', color: theme.subText, marginTop: '5px', width: '100%'}} onChange={e => setImages([...e.target.files])} required={!editMode} />
-                                        </div>
+    <label style={s.label}>Product Images (Max 5)</label>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', marginTop: '10px' }}>
+        {/* Generate 5 Upload Boxes */}
+        {[0, 1, 2, 3, 4].map((index) => (
+            <div key={index} style={{ position: 'relative', width: '100%', aspectRatio: '1/1', border: `2px dashed ${theme.border}`, borderRadius: '8px', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#fafafa' }}>
+                {images[index] ? (
+                    <>
+                        <img 
+                            src={URL.createObjectURL(images[index])} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                            alt="preview" 
+                        />
+                        <button 
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            style={{ position: 'absolute', top: '2px', right: '2px', background: theme.danger, color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '12px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', zIndex: 10 }}
+                        >
+                            &times;
+                        </button>
+                    </>
+                ) : (
+                    <label style={{ cursor: 'pointer', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                        <i className="fa-solid fa-plus" style={{ color: theme.subText, fontSize: '18px' }}></i>
+                        <input 
+                            type="file" 
+                            style={{ display: 'none' }} 
+                            onChange={(e) => {
+                                if (e.target.files[0]) {
+                                    const newImages = [...images];
+                                    newImages[index] = e.target.files[0];
+                                    setImages(newImages.filter(Boolean)); // filter nulls
+                                }
+                            }} 
+                        />
+                    </label>
+                )}
+            </div>
+        ))}
+    </div>
+</div>
 
                                         <button type="submit" disabled={loading} style={s.submitBtn}>
                                             {loading ? 'Saving Data...' : (editMode ? 'Update Product' : 'Save Product')}
