@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // useNavigate add panniyachu
+// find this line and add useContext
+import React, { useState, useEffect, useContext } from 'react'; 
+import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import { CartContext } from '../context/CartContext';
 
 const Header = () => {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isAccountOpen, setIsAccountOpen] = useState(false); // Mobile account sub-menu
+    const [isAccountOpen, setIsAccountOpen] = useState(false); 
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
 
+    // Temporary Auth State 
     const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const navigate = useNavigate();
 
+    // PUDHUSA ADD PANNATHU: Cart details edukkurom
+    const { cart } = useContext(CartContext);
+    const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
     const handleCategoryChange = (e) => {
         const category = e.target.value;
@@ -60,15 +66,15 @@ const Header = () => {
 
 <div className="flex flex-1 max-w-2xl border-2 border-gray-100 rounded-md bg-gray-50 h-9 md:h-11 relative mx-1 md:mx-0">
     <select 
-        onChange={handleCategoryChange} 
-        className="bg-transparent px-1 md:px-2 border-r text-[10px] md:text-xs font-bold outline-none text-gray-500 max-w-[70px] md:max-w-none"
-    >
-        <option value="All">All</option>
-        <option value="Organic">Organic</option>
-        <option value="Chemical">Chemical</option>
-        <option value="Tools">Tools</option>
-        <option value="Seeds">Seeds</option>
-    </select>
+    onChange={handleCategoryChange} 
+    className="bg-transparent px-1 md:px-2 border-r text-[10px] md:text-xs font-bold outline-none text-gray-500 max-w-[70px] md:max-w-none"
+>
+    <option value="All">All Category</option>
+    <option value="Bio Fertilizer">Bio Fertilizer</option>
+    <option value="Organic Manure">Organic Manure</option>
+    <option value="Nursery Plants">Nursery Plants</option>
+    <option value="Quality Seeds">Quality Seeds</option>
+</select>
     
     <input 
         type="text" 
@@ -117,17 +123,23 @@ const Header = () => {
                 {/* 3. Navigation Icons Section */}
                 <div className="flex items-center space-x-3 md:space-x-6 text-gray-700">
                     {/* Desktop Text-less Icons */}
-                    <div className="hidden md:flex items-center space-x-5 mr-4 border-r pr-6 border-gray-200">
-                        <Link to="/" title="Home" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-house"></i></Link>
-                        <Link to="/about" title="About Us" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-circle-info"></i></Link>
-                        <Link to="/contact" title="Contact" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-phone-volume"></i></Link>
-                    </div>
+                    {/* Desktop Navigation Icons Section */}
+<div className="hidden md:flex items-center space-x-5 mr-4 border-r pr-6 border-gray-200">
+    <Link to="/" title="Home" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-house"></i></Link>
+    <Link to="/about" title="About Us" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-circle-info"></i></Link>
+
+</div>
                     
-                    {/* Cart */}
-                    <div className="relative cursor-pointer hover:text-[#79A206] transition-all group">
-                        <i className="fa-solid fa-cart-shopping text-xl"></i>
-                        <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">0</span>
-                    </div>
+                    
+                    {/* Dynamic Cart Icon */}
+<Link to="/cart" className="relative cursor-pointer hover:text-[#79A206] transition-all group">
+    <i className="fa-solid fa-cart-shopping text-xl"></i>
+    {cartCount > 0 && (
+        <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform font-bold">
+            {cartCount}
+        </span>
+    )}
+</Link>
 
                   <div className="hidden md:relative md:block">
     <div 
@@ -181,10 +193,16 @@ const Header = () => {
                             <i className="fa-solid fa-xmark text-xl text-gray-400" onClick={() => setIsMenuOpen(false)}></i>
                         </div>
                         
-                        <ul className="flex flex-col space-y-5 font-bold text-gray-700">
-                            <li><Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-house text-[#79A206]"></i> Home</Link></li>
-                            <li><Link to="/about" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-circle-info text-[#79A206]"></i> About Us</Link></li>
-                            <li><Link to="/contact" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-phone text-[#79A206]"></i> Contact</Link></li>
+<ul className="flex flex-col space-y-5 font-bold text-gray-700">
+    <li><Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-house text-[#79A206]"></i> Home</Link></li>
+    <li><Link to="/about" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-circle-info text-[#79A206]"></i> About Us</Link></li>
+    
+    {/* NEW CART OPTION IN SIDEBAR */}
+    <li>
+        <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3">
+            <i className="fa-solid fa-cart-shopping text-[#79A206]"></i> My Cart
+        </Link>
+    </li>
                             
                             {/* Mobile Account Sub-menu */}
                             <li className="border-t pt-4">
@@ -201,17 +219,13 @@ const Header = () => {
             <>
                 <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
                 <li><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
-                {/* NEW PROFILE BUTTON ADDED HERE */}
-                <li>
-                    <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 text-[#79A206]">
-                        <i className="fa-solid fa-id-card-clip"></i> My Profile
-                    </Link>
-                </li>
+                {/* Profile button same grey style-la (No Icon) */}
+                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
             </>
         ) : (
             <>
-                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>View Profile</Link></li>
-                <li className="text-red-500 cursor-pointer">Logout</li>
+                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
+                <li className="text-red-500 cursor-pointer" onClick={handleLogout}>Logout</li>
             </>
         )}
     </ul>

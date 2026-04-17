@@ -6,16 +6,18 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ProtectedRoute from './components/ProtectedRoute'; // Security component
+
+import Cart from './pages/Cart'; 
+import ProtectedRoute from './components/ProtectedRoute'; 
 import ProductDetails from './pages/ProductDetails';
 import Profile from "./pages/Profile";
 import OrderHistory from "./pages/OrderHistory";
+import { Toaster } from 'react-hot-toast';
+import { CartProvider } from './context/CartContext';
 
-// Header & Footer conditionally render pandra wrapper
+
 const LayoutWrapper = ({ children }) => {
   const location = useLocation();
-  
-  // Intha 3 paths-la iruntha Header & Footer hide aaganum
   const hideHeaderFooter = 
     location.pathname.startsWith('/admin') || 
     location.pathname.startsWith('/login') || 
@@ -24,12 +26,8 @@ const LayoutWrapper = ({ children }) => {
 
   return (
     <>
-      {/* hideHeaderFooter false-ah iruntha mattum thaan Header varum */}
-      {!hideHeaderFooter && <Header />}
-      
+      {!hideHeaderFooter && <Header />}  
       {children}
-      
-      {/* hideHeaderFooter false-ah iruntha mattum thaan Footer varum */}
       {!hideHeaderFooter && <Footer />}
     </>
   );
@@ -37,7 +35,9 @@ const LayoutWrapper = ({ children }) => {
 
 function App() {
   return (
+    <CartProvider>
     <Router>
+      <Toaster position="top-center" reverseOrder={false} />
       <LayoutWrapper>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -45,7 +45,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/product/:id" element={<ProductDetails />} />
-          
+          <Route path="/cart" element={<Cart />} />
           {/* Protected Admin Route - Admin mattum thaan access panna mudiyum */}
           <Route 
             path="/admin" 
@@ -56,7 +56,7 @@ function App() {
             } 
           />
 
-          {/* Protected User Routes - Log in panna normal users mattum paarkalam */}
+          
           <Route 
             path="/profile" 
             element={
@@ -76,6 +76,7 @@ function App() {
         </Routes>
       </LayoutWrapper>
     </Router>
+    </CartProvider>
   );
 }
 
