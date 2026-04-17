@@ -1,17 +1,19 @@
-import React, { useState, useEffect, useContext } from 'react'; // PUDHUSA ADD PANNATHU: useContext
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import API from "../api/axios";
 import { motion } from 'framer-motion';
 import { CartContext } from '../context/CartContext'; // PUDHUSA ADD PANNATHU: Namma CartContext
+import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
-    const { id } = useParams(); 
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [mainImage, setMainImage] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
 
-    // PUDHUSA ADD PANNATHU: Context-la irunthu addToCart function-a edukkurom
+    
     const { addToCart } = useContext(CartContext);
 
     useEffect(() => {
@@ -27,22 +29,40 @@ const ProductDetails = () => {
             }
         };
         fetchProduct();
-        window.scrollTo(0, 0); // Page open aagum pothu top-ku scroll pannum
+        window.scrollTo(0, 0);
     }, [id]);
 
     if (loading) return (
         <div className="h-screen flex justify-center items-center">
             <i className="fa-solid fa-circle-notch fa-spin text-5xl text-[#79A206]"></i>
         </div>
-    );
+    );  
 
     if (!product) return <div className="text-center py-20 font-bold text-xl">Product Not Found!</div>;
+const addToCartHandler = async (shouldNavigate = false) => {
+    // Ippo backend call-a comment pannidunga (Temporary)
+    /*
+    try {
+        await API.post('/cart/add', {
+            productId: product._id,
+            quantity: quantity
+        });
+    } catch (error) { ... }
+    */
+
+    // Direct-ah frontend context-la mattum add pannunga
+    addToCart({ ...product, quantity }); 
+    toast.success("Added to Cart pakka-va!");
+
+    if (shouldNavigate) {
+        navigate('/cart');
+    }
+};
 
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-10 py-10 md:py-20 bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                 
-                {/* 1. LEFT SIDE: Image Gallery */}
                 <div className="space-y-4">
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -71,7 +91,6 @@ const ProductDetails = () => {
                     </div>
                 </div>
 
-                {/* 2. RIGHT SIDE: Product Info */}
                 <div className="flex flex-col space-y-6">
                     <div>
                         <span className="bg-[#79A206]/10 text-[#79A206] px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest">
@@ -119,13 +138,22 @@ const ProductDetails = () => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <button className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20">
-                                <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
-                            </button>
-                            <button className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all">
-                                 Buy Now
-                            </button>
-                        </div>
+    {/* Add to Cart - No alert, no popup, silent add */}
+    <button 
+        onClick={() => addToCartHandler(false)}
+        className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20"
+    >
+        <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
+    </button>
+
+    {/* Buy Now - Add to cart and then Navigate to Cart page */}
+    <button 
+        onClick={() => addToCartHandler(true)}
+        className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all"
+    >
+        Buy Now
+    </button>
+</div>
                     </div>
                 </div>
             </div>

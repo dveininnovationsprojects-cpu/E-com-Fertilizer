@@ -8,6 +8,7 @@ const Profile = () => {
   const [editMode, setEditMode] = useState(false);
   const [passwords, setPasswords] = useState({ current: "", newPwd: "", confirm: "" });
   const [orders, setOrders] = useState([]);
+  const [allProducts, setAllProducts] = useState([]); // To get product names and images
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [supportMsg, setSupportMsg] = useState("");
@@ -26,13 +27,14 @@ const Profile = () => {
 
   useEffect(() => {
     fetchProfile();
+    fetchAllProducts(); // Fetch products to show images/names in orders
   }, []);
 
   useEffect(() => {
     if (activeTab === "orders") fetchOrders();
   }, [activeTab]);
 
-  // Fetch fresh profile data from DB on component mount
+  // Fetch fresh profile data
   const fetchProfile = async () => {
     try {
       const res = await API.get('/auth/profile');
@@ -40,7 +42,6 @@ const Profile = () => {
       setUser((prev) => ({ ...prev, ...fetchedUser }));
       localStorage.setItem("user", JSON.stringify(fetchedUser));
       
-      // Auto-fill address form if address string exists
       if(fetchedUser.address) {
         setAddressForm(prev => ({...prev, line1: fetchedUser.address}));
       }
@@ -51,15 +52,23 @@ const Profile = () => {
     }
   };
 
+  // Fetch all products to map IDs to Images/Names
+  const fetchAllProducts = async () => {
+    try {
+      const res = await API.get('/products');
+      setAllProducts(res.data);
+    } catch(err) {
+      console.error("Failed to fetch products for order mapping", err);
+    }
+  };
+
+  // Fetch user orders
   const fetchOrders = async () => {
     setOrdersLoading(true);
     try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (!storedUser?._id) return;
-      
-      // Attempting standard order route for users
-      const res = await API.get(`/orders/${storedUser._id}`);
-      setOrders(res.data.orders || res.data || []);
+      const res = await API.get('/orders/myorders');
+      const fetchedOrders = res.data.orders || res.data || [];
+      setOrders(Array.isArray(fetchedOrders) ? fetchedOrders : []);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
       setOrders([]);
@@ -68,13 +77,34 @@ const Profile = () => {
     }
   };
 
-  // Generic handle change for Personal Info Tab
-  const handleChange = (e) => setUser({ ...user, [e.target.name]: e.target.value });
+  // Helper to get Product Name and Image from ID
+  const getProductDetails = (prodRef) => {
+    const fallbackImage = "https://via.placeholder.com/80?text=Product";
+    if (!prodRef) return { name: "Unknown Product", image: fallbackImage };
+    if (prodRef.name) return { name: prodRef.name, image: prodRef.imageUrl || fallbackImage };
+    
+    const found = allProducts.find(p => p._id === prodRef || p._id === prodRef.toString());
+    return found 
+      ? { name: found.name, image: found.imageUrl || fallbackImage } 
+      : { name: `Product ID: ${prodRef}`, image: fallbackImage };
+  };
 
-  // Generic handle change for Manage Address Tab
+  // Cancel Order API Call
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+    
+    try {
+      await API.put(`/orders/${orderId}/cancel`);
+      alert("Order cancelled successfully!");
+      fetchOrders(); // Refresh the list after cancellation
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to cancel order.");
+    }
+  };
+
+  const handleChange = (e) => setUser({ ...user, [e.target.name]: e.target.value });
   const handleAddressChange = (e) => setAddressForm({ ...addressForm, [e.target.name]: e.target.value });
 
-  // Update Personal Information
   const handleUpdate = async () => {
     try {
       const res = await API.put(`/auth/profile`, user);
@@ -92,13 +122,10 @@ const Profile = () => {
     }
   };
 
-  // Update Address from Manage Address Tab
   const handleAddressSave = async () => {
     if(!addressForm.line1 || !addressForm.city || !addressForm.pinCode) {
       return alert("Please fill the mandatory address fields (*).");
     }
-    
-    // Combine into single string for the backend schema
     const combinedAddress = `${addressForm.line1}, ${addressForm.line2 ? addressForm.line2 + ', ' : ''}${addressForm.area ? addressForm.area + ', ' : ''}${addressForm.city}, ${addressForm.country} - ${addressForm.pinCode}`;
     
     try {
@@ -112,12 +139,10 @@ const Profile = () => {
         alert("Address saved successfully!");
       }
     } catch (err) {
-      console.error(err);
       alert(err.response?.data?.message || "Failed to save address");
     }
   };
 
-  // Update Password
   const handlePasswordUpdate = async () => {
     if (!passwords.newPwd) return alert("Please enter a new password");
     if (passwords.newPwd !== passwords.confirm) return alert("New passwords do not match!");
@@ -131,7 +156,6 @@ const Profile = () => {
     }
   };
 
-  // Send Support Ticket
   const handleSupportSend = async () => {
     if (!supportSubject.trim()) return alert("Please enter a subject.");
     if (!supportMsg.trim()) return alert("Please write a message.");
@@ -145,7 +169,6 @@ const Profile = () => {
       setSupportMsg("");
       setSupportSubject("");
     } catch (err) {
-      console.error(err);
       alert("Failed to send message. Try again.");
     } finally {
       setSupportSending(false);
@@ -199,10 +222,6 @@ const Profile = () => {
             <i className="fa-solid fa-right-from-bracket"></i> Logout
           </li>
         </ul>
-
-        <div className="sidebar-footer">
-          {/* Footer content if needed */}
-        </div>
       </div>
 
       {/* CONTENT */}
@@ -256,36 +275,96 @@ const Profile = () => {
           </div>
         )}
 
-        {/* --- ORDERS --- */}
+        {/* --- ORDERS (FLIPKART STYLE) --- */}
         {activeTab === "orders" && (
           <div className="orders-section">
-            <h3>My Orders</h3>
-            {ordersLoading ? <p style={{ color: "#888" }}>Loading orders...</p>
-              : orders.length === 0 ? <p style={{ color: "#888" }}>No orders found.</p>
-              : (
-                <div style={{overflowX: 'auto'}}>
-                    <table className="orders-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Items</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orders.map((o) => (
-                        <tr key={o._id}>
-                            <td>#{o._id.slice(-6).toUpperCase()}</td>
-                            <td>{new Date(o.createdAt).toLocaleDateString()}</td>
-                            <td>{o.orderItems?.length || 0} Product(s)</td>
-                            <td style={{fontWeight: '600'}}>₹{o.totalAmount?.toLocaleString('en-IN') || 0}</td>
-                            <td><span className={`order-status ${(o.status || "").replace(/\s+/g, '-').toLowerCase()}`}>{o.status}</span></td>
-                        </tr>
-                        ))}
-                    </tbody>
-                    </table>
+            <h3 style={{marginBottom: '20px', color: '#333'}}>My Orders</h3>
+            
+            {ordersLoading ? <p style={{ color: "#888" }}>Loading your orders...</p>
+              : orders.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '50px', backgroundColor: '#f9fbf9', borderRadius: '12px', border: '1px dashed #ddd' }}>
+                    <div style={{fontSize: '40px', color: '#ccc', marginBottom: '10px'}}><i className="fa-solid fa-box-open"></i></div>
+                    <h3 style={{fontSize: '18px', color: '#333', margin: '0 0 10px 0'}}>No Orders Found</h3>
+                    <p style={{ color: "#888", fontSize: '14px', margin: 0 }}>Looks like you haven't shopped with us yet.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {orders.map((o) => (
+                        <div key={o._id} style={{ backgroundColor: '#fff', border: '1px solid #eaeaec', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                            
+                            {/* Order Header */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: '12px', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+                                <div>
+                                    <span style={{ fontWeight: '700', color: '#333', marginRight: '15px' }}>Order #{o._id ? o._id.slice(-8).toUpperCase() : 'N/A'}</span>
+                                    <span style={{ color: '#888', fontSize: '13px' }}><i className="fa-regular fa-calendar" style={{marginRight: '5px'}}></i> {new Date(o.createdAt).toLocaleDateString()}</span>
+                                </div>
+                                <div style={{ fontWeight: '700', color: '#333', fontSize: '16px' }}>
+                                    Total: ₹{o.totalAmount?.toLocaleString('en-IN') || 0}
+                                </div>
+                            </div>
+
+                            {/* Order Items (Products) */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
+                                {o.orderItems && o.orderItems.map((item, idx) => {
+                                    const prodInfo = getProductDetails(item.product);
+                                    return (
+                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                            <div style={{ width: '70px', height: '70px', borderRadius: '8px', border: '1px solid #eee', overflow: 'hidden', flexShrink: 0, backgroundColor: '#f9f9f9' }}>
+                                                <img src={prodInfo.image} alt={prodInfo.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', color: '#333', fontWeight: '600' }}>{prodInfo.name}</h4>
+                                                <div style={{ color: '#666', fontSize: '13px' }}>Qty: <span style={{fontWeight: '600', color: '#333'}}>{item.quantity}</span>  |  Price: <span style={{fontWeight: '600', color: '#333'}}>₹{item.price?.toLocaleString('en-IN')}</span></div>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+
+                            {/* Order Footer / Actions */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '15px', borderTop: '1px solid #f0f0f0', flexWrap: 'wrap', gap: '10px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontSize: '13px', color: '#666', fontWeight: '500' }}>Status:</span>
+                                    <span 
+                                        style={{
+                                            padding: '6px 12px', 
+                                            borderRadius: '20px', 
+                                            fontSize: '12px', 
+                                            fontWeight: '600', 
+                                            backgroundColor: o.status === 'Delivered' ? '#eefaf3' : o.status === 'Cancelled' ? '#fdeaea' : '#fdf6e9', 
+                                            color: o.status === 'Delivered' ? '#2ecc71' : o.status === 'Cancelled' ? '#e74c3c' : '#f39c12'
+                                        }}
+                                    >
+                                        <i className={`fa-solid ${o.status === 'Delivered' ? 'fa-check-circle' : o.status === 'Cancelled' ? 'fa-times-circle' : 'fa-truck-fast'}`} style={{marginRight: '5px'}}></i>
+                                        {o.status || "Pending"}
+                                    </span>
+                                </div>
+                                
+                                {/* Cancel Order Button - Only shows before shipping */}
+                                {['Placed', 'Delivery Processed', 'Pending'].includes(o.status) && (
+                                    <button 
+                                        onClick={() => handleCancelOrder(o._id)} 
+                                        style={{ 
+                                            backgroundColor: '#fff', 
+                                            color: '#e74c3c', 
+                                            border: '1px solid #e74c3c', 
+                                            padding: '8px 16px', 
+                                            borderRadius: '6px', 
+                                            fontSize: '13px', 
+                                            fontWeight: '600', 
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseOver={(e) => { e.target.style.backgroundColor = '#fdeaea' }}
+                                        onMouseOut={(e) => { e.target.style.backgroundColor = '#fff' }}
+                                    >
+                                        Cancel Order
+                                    </button>
+                                )}
+                            </div>
+
+                        </div>
+                    ))}
                 </div>
               )}
           </div>

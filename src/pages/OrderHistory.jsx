@@ -13,7 +13,7 @@ const OrderHistory = () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user?._id) { setLoading(false); return; }
-        const res = await API.get(`/orders/${user._id}`);
+        const res = await API.get(`/myorders`);
         setOrders(res.data.orders || []);
       } catch (err) {
         console.error(err);
