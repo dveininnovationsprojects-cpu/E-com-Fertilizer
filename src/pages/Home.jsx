@@ -37,13 +37,13 @@ useEffect(() => {
                 params.append('search', searchFromURL);
             }
 
-            const url = `http://192.168.1.6:5000/api/products?${params.toString()}`;
+            const url = `http://localhost:5000/api/products?${params.toString()}`;
             
             const response = await axios.get(url);
             setProducts(response.data);
             setLoading(false);
 
-            // Auto-scroll logic
+            
             if (categoryFromURL && categoryFromURL !== 'All') {
                 setTimeout(() => {
                     productSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });

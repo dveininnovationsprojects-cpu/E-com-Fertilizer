@@ -2,10 +2,9 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
-    // Check if user data exists in localStorage
+   
     const userStr = localStorage.getItem('user');
-    
-    // If no user is logged in at all, send them to login page
+
     if (!userStr) {
         return <Navigate to="/login" replace />;
     }
