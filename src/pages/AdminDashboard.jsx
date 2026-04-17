@@ -28,10 +28,14 @@ const AdminDashboard = () => {
     const [filterStatus, setFilterStatus] = useState("All");
     const [paymentToggles, setPaymentToggles] = useState({}); // Tracks "Verified" checkbox
 
-    // Forms State
-    const [formData, setFormData] = useState({
-        name: '', category: 'Organic', price: '', stock: '', description: ''
-    });
+
+const [formData, setFormData] = useState({
+    name: '', 
+    category: 'Bio Fertilizer', 
+    price: '', 
+    stock: '', 
+    description: ''
+});
     const [profileData, setProfileData] = useState({ name: '', email: '' });
     const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
@@ -168,14 +172,15 @@ const AdminDashboard = () => {
 
         try {
             if (editMode) {
-                if (images.length > 0) {
-                    data.append('image', images[0]); 
-                }
-                await API.put(`/admin/products/${editProductId}`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                alert("Product updated successfully.");
-            } else {
+    // Edit pannum pothu images iruntha, loop panni 'images' key-la append pannunga
+    if (images.length > 0) {
+        images.forEach(img => data.append('images', img));
+    }
+    await API.put(`/admin/products/${editProductId}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    toast.success("Product updated successfully.");
+} else {
                 if (images.length > 0) {
                     images.forEach(img => data.append('images', img));
                 } else {
@@ -622,12 +627,16 @@ const AdminDashboard = () => {
 
                                         <div style={s.formGroup}>
                                             <label style={s.label}>Category</label>
-                                            <select style={s.input} value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                                                <option>Bio Fertilizer</option>
-                                                <option>Organic Manure</option>
-                                                <option>Nursery Plants</option>
-                                                <option>Quality Seeds</option>
-                                            </select>
+                                           <select 
+    style={s.input} 
+    value={formData.category} 
+    onChange={e => setFormData({...formData, category: e.target.value})}
+>
+    <option value="Bio Fertilizer">Bio Fertilizer</option>
+    <option value="Organic Manure">Organic Manure</option>
+    <option value="Nursery Plants">Nursery Plants</option>
+    <option value="Quality Seeds">Quality Seeds</option>
+</select>
                                         </div>
 
                                         <div style={s.formGroup}>

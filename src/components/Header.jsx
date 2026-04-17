@@ -66,15 +66,15 @@ const Header = () => {
 
 <div className="flex flex-1 max-w-2xl border-2 border-gray-100 rounded-md bg-gray-50 h-9 md:h-11 relative mx-1 md:mx-0">
     <select 
-        onChange={handleCategoryChange} 
-        className="bg-transparent px-1 md:px-2 border-r text-[10px] md:text-xs font-bold outline-none text-gray-500 max-w-[70px] md:max-w-none"
-    >
-        <option value="All">All</option>
-        <option value="Organic">Organic</option>
-        <option value="Chemical">Chemical</option>
-        <option value="Tools">Tools</option>
-        <option value="Seeds">Seeds</option>
-    </select>
+    onChange={handleCategoryChange} 
+    className="bg-transparent px-1 md:px-2 border-r text-[10px] md:text-xs font-bold outline-none text-gray-500 max-w-[70px] md:max-w-none"
+>
+    <option value="All">All Category</option>
+    <option value="Bio Fertilizer">Bio Fertilizer</option>
+    <option value="Organic Manure">Organic Manure</option>
+    <option value="Nursery Plants">Nursery Plants</option>
+    <option value="Quality Seeds">Quality Seeds</option>
+</select>
     
     <input 
         type="text" 

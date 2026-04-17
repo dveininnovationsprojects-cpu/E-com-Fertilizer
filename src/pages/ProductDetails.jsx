@@ -39,24 +39,23 @@ const ProductDetails = () => {
     );  
 
     if (!product) return <div className="text-center py-20 font-bold text-xl">Product Not Found!</div>;
-   const addToCartHandler = async (shouldNavigate = false) => {
+const addToCartHandler = async (shouldNavigate = false) => {
+    // Ippo backend call-a comment pannidunga (Temporary)
+    /*
     try {
-        // 1. Backend update
         await API.post('/cart/add', {
             productId: product._id,
             quantity: quantity
         });
+    } catch (error) { ... }
+    */
 
-        // 2. Frontend Context update (Idhu thaan Header count-ah mathum)
-        // Oru vela unga addToCart function quantity-ah handle pannala na:
-        addToCart({ ...product, quantity }); 
+    // Direct-ah frontend context-la mattum add pannunga
+    addToCart({ ...product, quantity }); 
+    toast.success("Added to Cart pakka-va!");
 
-        if (shouldNavigate) {
-            navigate('/cart');
-        }
-    } catch (error) {
-        console.error("Cart update failed", error);
-        toast.error("Failed to add to cart");
+    if (shouldNavigate) {
+        navigate('/cart');
     }
 };
 
