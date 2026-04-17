@@ -7,8 +7,8 @@ import Footer from './components/Footer';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-import Cart from './pages/Cart'; // PUDHUSA ADD PANNATHU: Cart import
-import ProtectedRoute from './components/ProtectedRoute'; // Security component
+import Cart from './pages/Cart'; 
+import ProtectedRoute from './components/ProtectedRoute'; 
 import ProductDetails from './pages/ProductDetails';
 import Profile from "./pages/Profile";
 import OrderHistory from "./pages/OrderHistory";
@@ -56,7 +56,7 @@ function App() {
             } 
           />
 
-          {/* Protected User Routes - Log in panna normal users mattum paarkalam */}
+          
           <Route 
             path="/profile" 
             element={
