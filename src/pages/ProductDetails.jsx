@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react'; // PUDHUSA ADD PANNATHU: useContext
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import API from "../api/axios";
 import { motion } from 'framer-motion';
 import { CartContext } from '../context/CartContext'; // PUDHUSA ADD PANNATHU: Namma CartContext
+import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [mainImage, setMainImage] = useState("");
     const [quantity, setQuantity] = useState(1);
@@ -37,19 +39,23 @@ const ProductDetails = () => {
     );  
 
     if (!product) return <div className="text-center py-20 font-bold text-xl">Product Not Found!</div>;
-    const addToCartHandler = async (shouldNavigate = false) => {
+   const addToCartHandler = async (shouldNavigate = false) => {
     try {
-        // Backend cart endpoint-ku product details anupurom
+        // 1. Backend update
         await API.post('/cart/add', {
             productId: product._id,
             quantity: quantity
         });
 
+        // 2. Frontend Context update (Idhu thaan Header count-ah mathum)
+        // Oru vela unga addToCart function quantity-ah handle pannala na:
+        addToCart({ ...product, quantity }); 
 
         if (shouldNavigate) {
             navigate('/cart');
         }
     } catch (error) {
+        console.error("Cart update failed", error);
         toast.error("Failed to add to cart");
     }
 };

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // useNavigate add panniyachu
+// find this line and add useContext
+import React, { useState, useEffect, useContext } from 'react'; 
+import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { CartContext } from '../context/CartContext';
 
@@ -129,21 +130,16 @@ const Header = () => {
 
 </div>
                     
-                    {/* Cart */}
-                    <div className="relative cursor-pointer hover:text-[#79A206] transition-all group">
-                        <i className="fa-solid fa-cart-shopping text-xl"></i>
-                        <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">0</span>
-                    </div>
                     
-                    {/* PUDHUSA ADD PANNATHU: Link tag and dynamic cartCount */}
-                    <Link to="/cart" className="relative cursor-pointer hover:text-[#79A206] transition-all group">
-                        <i className="fa-solid fa-cart-shopping text-xl"></i>
-                        {cartCount > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">
-                                {cartCount}
-                            </span>
-                        )}
-                    </Link>
+                    {/* Dynamic Cart Icon */}
+<Link to="/cart" className="relative cursor-pointer hover:text-[#79A206] transition-all group">
+    <i className="fa-solid fa-cart-shopping text-xl"></i>
+    {cartCount > 0 && (
+        <span className="absolute -top-2 -right-2 bg-[#79A206] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform font-bold">
+            {cartCount}
+        </span>
+    )}
+</Link>
 
                   <div className="hidden md:relative md:block">
     <div 

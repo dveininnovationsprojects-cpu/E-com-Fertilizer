@@ -262,7 +262,7 @@ const AdminDashboard = () => {
             toast.success("Password changed successfully!");;
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to change password.");
+            alert (err.response?.data?.message || "Failed to change password.");
         }
     };
 

@@ -13,6 +13,7 @@ import ProductDetails from './pages/ProductDetails';
 import Profile from "./pages/Profile";
 import OrderHistory from "./pages/OrderHistory";
 import { Toaster } from 'react-hot-toast';
+import { CartProvider } from './context/CartContext';
 
 
 const LayoutWrapper = ({ children }) => {
@@ -34,6 +35,7 @@ const LayoutWrapper = ({ children }) => {
 
 function App() {
   return (
+    <CartProvider>
     <Router>
       <Toaster position="top-center" reverseOrder={false} />
       <LayoutWrapper>
@@ -74,6 +76,7 @@ function App() {
         </Routes>
       </LayoutWrapper>
     </Router>
+    </CartProvider>
   );
 }
 
