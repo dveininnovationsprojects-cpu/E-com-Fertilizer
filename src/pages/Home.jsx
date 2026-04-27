@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination, EffectFade } from 'swiper/modules';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { CartContext } from '../context/CartContext';
 
 // Swiper Styles
 import 'swiper/css';
@@ -14,6 +15,7 @@ import 'swiper/css/effect-fade';
 
 const Home = () => {
     const navigate = useNavigate();
+    
     const productSectionRef = useRef(null); // For "Shop Now" scroll logic
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,6 +25,7 @@ const Home = () => {
 const queryParams = new URLSearchParams(location.search);
 const categoryFromURL = queryParams.get('category') || 'All';
 const searchFromURL = queryParams.get('search') || ""; // Add search param
+const { addToCart } = useContext(CartContext);
 
 useEffect(() => {
     const fetchProducts = async () => {
@@ -91,6 +94,7 @@ useEffect(() => {
     const scrollToProducts = () => {
         productSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
+    
 
     return (
         <div className="w-full min-h-screen bg-white overflow-x-hidden">
@@ -205,14 +209,32 @@ useEffect(() => {
                                     />
                                     
                                     {/* Action Buttons Overlay */}
-                                    <div className="absolute bottom-[-60px] group-hover:bottom-6 left-0 right-0 flex justify-center space-x-3 transition-all duration-500">
-                                        <button className="w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#79A206] hover:text-white transition-all">
-                                            <i className="fa-solid fa-cart-plus"></i>
-                                        </button>
-                                        <button className="w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#79A206] hover:text-white transition-all">
-                                            <i className="fa-regular fa-eye"></i>
-                                        </button>
-                                    </div>
+{/* Action Buttons Overlay */}
+<div className="absolute bottom-[-60px] group-hover:bottom-6 left-0 right-0 flex justify-center space-x-3 transition-all duration-500">
+    
+    {/* CART BUTTON - Add and Navigate */}
+    <button 
+        onClick={(e) => {
+            e.stopPropagation(); // Card click details page poguratha thadukkum
+            addToCart(p); // Context update panni cart-la add pannum
+            navigate('/cart'); // Instant-ah cart page kootitu pogum
+        }}
+        className="w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#79A206] hover:text-white transition-all"
+    >
+        <i className="fa-solid fa-cart-plus"></i>
+    </button>
+
+    {/* EYE BUTTON - View Details Only */}
+    <button 
+        onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/product/${p._id}`);
+        }}
+        className="w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#79A206] hover:text-white transition-all"
+    >
+        <i className="fa-regular fa-eye"></i>
+    </button>
+</div>
 
                                     
                                 </div>

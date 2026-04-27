@@ -156,11 +156,12 @@ const Profile = () => {
     }
   };
 
-  const handleSupportSend = async () => {
+const handleSupportSend = async () => {
     if (!supportSubject.trim()) return alert("Please enter a subject.");
     if (!supportMsg.trim()) return alert("Please write a message.");
     setSupportSending(true);
     try {
+      // Direct-a backend-ku anupputhu. user._id token valiya poidum.
       await API.post("/support", {
         subject: supportSubject,
         message: supportMsg,
@@ -169,6 +170,7 @@ const Profile = () => {
       setSupportMsg("");
       setSupportSubject("");
     } catch (err) {
+      console.error(err);
       alert("Failed to send message. Try again.");
     } finally {
       setSupportSending(false);

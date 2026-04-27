@@ -13,14 +13,14 @@ const AdminDashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(window.innerWidth > 1024);
     
-    // Modals & Edit States
+   
     const [showAddModal, setShowAddModal] = useState(false); 
     const [showLogoutModal, setShowLogoutModal] = useState(false); 
     const [editMode, setEditMode] = useState(false);
     const [editProductId, setEditProductId] = useState(null);
     const [images, setImages] = useState([]);
     
-    // Pagination, Filters & Toggles States
+   
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(6); // Shows pagination only if items > 6
     const [searchQuery, setSearchQuery] = useState("");
@@ -97,26 +97,28 @@ const [formData, setFormData] = useState({
         }
     };
 
-    const fetchData = async () => {
-        try {
-            const [pRes, oRes, tRes, cRes] = await Promise.all([
-                API.get('/products').catch(() => ({ data: [] })),
-                API.get('/admin/orders').catch(() => ({ data: [] })),
-                API.get('/support').catch(() => ({ data: [] })),
-                API.get('/admin/users').catch(() => ({ data: [] }))
-            ]);
-            setProducts(pRes.data);
-            setOrders(oRes.data);
-            setTickets(tRes.data || []);
-            const usersList = cRes.data || [];
-            setCustomers(usersList.filter(user => user.role !== 'admin'));
-        } catch (err) {
-            console.error("Dashboard Sync Error");
-        }
-    };
+const fetchData = async () => {
+    try {
+        const [pRes, oRes, tRes, cRes] = await Promise.all([
+            API.get('/products').catch(() => ({ data: [] })),
+            API.get('/admin/orders').catch(() => ({ data: [] })),
+            API.get('/support').catch(() => ({ data: [] })),
+            API.get('/admin/users').catch(() => ({ data: [] })) // Inga route correct-a irukanum
+        ]);
+        setProducts(pRes.data);
+        setOrders(oRes.data);
+        setTickets(tRes.data || []);
+        
+        // --- Mukkiyamaana change inga thaan ---
+        const usersList = cRes.data || [];
+        // Role check backend-laye panni irunthaalum safety-ku ingayum filter pannunga
+        setCustomers(usersList.filter(user => user.role === 'user')); 
+    } catch (err) {
+        console.error("Dashboard Sync Error");
+    }
+};
 
-    // --- HELPER FUNCTION TO GET PRODUCT NAME ---
-    // Finds product name from state if backend only sends ID
+
     const getProductName = (productRef) => {
         if (!productRef) return "Unknown Product";
         if (productRef.name) return productRef.name; // If backend already populated it
@@ -136,28 +138,33 @@ const [formData, setFormData] = useState({
         setFilterStatus("All");
     };
 
-    // --- ACTION HANDLERS ---
-    const openAddModal = () => {
-        setEditMode(false);
-        setEditProductId(null);
-        setFormData({ name: '', category: 'Organic', price: '', stock: '', description: '' });
-        setImages([]);
-        setShowAddModal(true);
-    };
+  const openAddModal = () => {
+    setEditMode(false);
+    setEditProductId(null);
+    setFormData({ 
+        name: '', 
+        category: 'Bio Fertilizer', 
+        price: '', 
+        stock: '', 
+        description: '' 
+    });
+    setImages([]);
+    setShowAddModal(true);
+};
 
-    const openEditModal = (product) => {
-        setEditMode(true);
-        setEditProductId(product._id);
-        setFormData({
-            name: product.name,
-            category: product.category || 'Organic',
-            price: product.price,
-            stock: product.stock,
-            description: product.description || ''
-        });
-        setImages([]);
-        setShowAddModal(true);
-    };
+   const openEditModal = (product) => {
+    setEditMode(true);
+    setEditProductId(product._id);
+    setFormData({
+        name: product.name,
+        category: product.category || 'Bio Fertilizer',
+        price: product.price,
+        stock: product.stock,
+        description: product.description || ''
+    });
+    setImages([]);
+    setShowAddModal(true);
+};
     const removeImage = (index) => {
     const newImages = [...images];
     newImages.splice(index, 1);
@@ -184,14 +191,14 @@ const [formData, setFormData] = useState({
                 if (images.length > 0) {
                     images.forEach(img => data.append('images', img));
                 } else {
-                    alert("Please select at least one image.");
+                    toast.error("Please select at least one image.");
                     setLoading(false);
                     return;
                 }
                 await API.post('/admin/products', data, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                toast.success(editMode ? "Product updated!" : "Product added!");
+                toast.success("New product added successfully.");
             }
             setFormData({ name: '', category: 'Organic', price: '', stock: '', description: '' });
             setImages([]);
@@ -205,16 +212,16 @@ const [formData, setFormData] = useState({
     };
 
     const handleDeleteProduct = async (id) => {
-        if (window.confirm("Are you sure you want to delete this product?")) {
-            try {
-                await API.delete(`/admin/products/${id}`);
-                toast.success("Product deleted successfully.");
-                fetchData(); // Refresh the product list
-            } catch (err) {
-                alert(err.response?.data?.message || "Failed to delete product.");
-            }
+    if (window.confirm("Are you sure you want to delete this product?")) {
+        try {
+            await API.delete(`/admin/products/${id}`);
+            toast.success("Product deleted successfully."); // Updated
+            fetchData();
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to delete product."); // Updated from alert
         }
-    };
+    }
+};
 
     const handleStatusUpdate = async (order, status) => {
         try {
@@ -228,9 +235,10 @@ const [formData, setFormData] = useState({
                 status: status, 
                 paymentStatus: finalPaymentStatus 
             });
+            toast.success(`Order status updated to ${status}.`);
             fetchData();
         } catch (err) { 
-            console.error(err); 
+            toast.error("Failed to update order status."); 
         }
     };
 
@@ -255,21 +263,23 @@ const [formData, setFormData] = useState({
             }
             fetchAdminProfile();
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to update profile.");
-        }
+        toast.error(err.response?.data?.message || "Failed to update profile."); 
+    }
     };
 
-    const handlePasswordChange = async (e) => {
-        e.preventDefault();
-        if (passwordData.newPassword !== passwordData.confirmPassword) return alert("New passwords do not match.");
-        try {
-            await API.put('auth/profile', { password: passwordData.newPassword });
-            toast.success("Password changed successfully!");;
-            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-        } catch (err) {
-            alert (err.response?.data?.message || "Failed to change password.");
-        }
-    };
+   const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+        return toast.error("New passwords do not match."); // Updated from alert
+    }
+    try {
+        await API.put('auth/profile', { password: passwordData.newPassword });
+        toast.success("Security password changed successfully."); // Updated
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+        toast.error(err.response?.data?.message || "An error occurred while changing password."); // Updated from alert
+    }
+};
 
     const handleLogoutClick = () => setShowLogoutModal(true); 
 
@@ -308,12 +318,15 @@ const [formData, setFormData] = useState({
     const currentOrders = getPaginatedData(filteredOrders);
     const totalOrderPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
-    const filteredCustomers = customers.filter(c => {
-        const searchTarget = (c.name || "") + " " + (c.email || "");
-        return searchTarget.toLowerCase().includes(searchQuery.toLowerCase());
-    });
-    const currentCustomers = getPaginatedData(filteredCustomers);
-    const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+const filteredCustomers = customers.filter(c => {
+    const name = c.name || "";
+    const email = c.email || "";
+    const searchTarget = name + " " + email;
+    return searchTarget.toLowerCase().includes(searchQuery.toLowerCase());
+});
+// Paginated customers-a namma table-ku anuprom
+const currentCustomers = getPaginatedData(filteredCustomers);
+const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
 
     const filteredTickets = tickets.filter(t => {
         const searchTarget = (t.user?.name || "") + " " + (t.subject || "");
@@ -824,58 +837,58 @@ const [formData, setFormData] = useState({
                     </div>
                 )}
 
-                {/* --- CUSTOMERS LIST --- */}
-                {activeTab === 'customers' && (
-                    <div style={{ animation: 'fadeIn 0.3s ease' }}>
-                        <div style={s.headerAction}>
-                            <h2 style={s.pageTitle}>Customer Directory</h2>
-                        </div>
-                        
-                        <div style={s.filterContainer}>
-                            <input 
-                                type="text" 
-                                placeholder="Search customer name or email..." 
-                                style={s.filterInput}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
+{activeTab === 'customers' && (
+    <div style={{ animation: 'fadeIn 0.3s ease' }}>
+        <div style={s.headerAction}>
+            <h2 style={s.pageTitle}>Customer Directory ({customers.length})</h2>
+        </div>
+        
+        <div style={s.filterContainer}>
+            <input 
+                type="text" 
+                placeholder="Search customer name or email..." 
+                style={s.filterInput}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
+        </div>
 
-                        <div style={s.card}>
-                            <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Registered Customers</h3>
-                            <div style={s.tableContainer}>
-                                <table style={s.table}>
-                                    <thead>
-                                        <tr>
-                                            <th style={s.th}>Name</th>
-                                            <th style={s.th}>Email Address</th>
-                                            <th style={s.th}>Phone Number</th>
-                                            <th style={s.th}>Address</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {currentCustomers.map(c => (
-                                            <tr key={c._id}>
-                                                <td style={{...s.td, fontWeight: '500'}}>{c.name}</td>
-                                                <td style={{...s.td, color: theme.subText}}>{c.email}</td>
-                                                <td style={{...s.td, color: theme.subText}}>{c.phone || 'Not Provided'}</td>
-                                                <td style={{...s.td, color: theme.subText}}>{c.address || 'Not Provided'}</td>
-                                            </tr>
-                                        ))}
-                                        {currentCustomers.length === 0 && (
-                                            <tr>
-                                                <td colSpan="4" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>
-                                                    No registered customers found. Please ensure the GET /api/admin/users route exists in your backend.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {renderPagination(totalCustomerPages)}
-                        </div>
-                    </div>
-                )}
+        <div style={s.card}>
+            <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Registered Customers</h3>
+            <div style={s.tableContainer}>
+                <table style={s.table}>
+                    <thead>
+                        <tr>
+                            <th style={s.th}>Name</th>
+                            <th style={s.th}>Email Address</th>
+                            <th style={s.th}>Phone Number</th>
+                            <th style={s.th}>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentCustomers.length > 0 ? (
+                            currentCustomers.map(c => (
+                                <tr key={c._id}>
+                                    <td style={{...s.td, fontWeight: '500'}}>{c.name}</td>
+                                    <td style={{...s.td, color: theme.subText}}>{c.email}</td>
+                                    <td style={{...s.td, color: theme.subText}}>{c.phone || 'Not Provided'}</td>
+                                    <td style={{...s.td, color: theme.subText}}>{c.address || 'Not Provided'}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="4" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>
+                                    No customers found or API loading issue.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+            {renderPagination(totalCustomerPages)}
+        </div>
+    </div>
+)}
 
                 {/* --- SUPPORT TICKETS --- */}
                 {activeTab === 'support' && (

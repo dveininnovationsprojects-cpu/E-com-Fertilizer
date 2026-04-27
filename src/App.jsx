@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ProductDetails from './pages/ProductDetails';
 import Profile from "./pages/Profile";
 import OrderHistory from "./pages/OrderHistory";
+import SupportTicket from './pages/SupportTicket';
 import { Toaster } from 'react-hot-toast';
 import { CartProvider } from './context/CartContext';
 
@@ -56,7 +57,14 @@ function App() {
             } 
           />
 
-          
+          <Route 
+  path="/support" 
+  element={
+    <ProtectedRoute>
+      <SupportTicket />
+    </ProtectedRoute>
+  } 
+/>
           <Route 
             path="/profile" 
             element={

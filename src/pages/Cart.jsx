@@ -27,37 +27,35 @@ const Cart = () => {
         }
     };
 
-    // Handle the final order submission
-    const handleConfirmAndPay = async () => {
-        if (!screenshot) {
-            alert("Please upload the payment screenshot to complete your order.");
-            return;
-        }
+const handleConfirmAndPay = async () => {
+    if (!screenshot) {
+        alert("Please upload the payment screenshot to complete your order.");
+        return;
+    }
 
-        setLoading(true);
-        try {
-            // Prepare the payload for the API
-            const orderData = {
-                orderItems: cart.map(item => ({ product: item._id, quantity: item.quantity, price: item.price })),
-                totalAmount: totalAmount,
-                shippingAddress: "User Address", // To be updated with dynamic user address later
-                paymentScreenshot: screenshot 
-            };
+    setLoading(true);
+    try {
+        // 🟢 LocalStorage-la irunthu login panna user address-a edukkurom
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const userAddress = storedUser?.address || storedUser?.user?.address || "Address not updated in profile";
 
-            // Post order details to the backend
-            const res = await API.post('/orders', orderData);
-            alert("Order Placed Successfully! Your order will be confirmed once the administration verifies the payment.");
-            
-            // Redirect user back to home page after successful order
-            navigate('/');
-        } catch (error) {
-            console.error("Order submission failed:", error);
-            alert("An error occurred while placing the order. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+        const orderData = {
+            orderItems: cart.map(item => ({ product: item._id, quantity: item.quantity, price: item.price })),
+            totalAmount: totalAmount,
+            shippingAddress: userAddress, // 🟢 Ippo real address backend-ku pogum
+        };
 
+        const res = await API.post('/orders', orderData);
+        alert("Order Placed Successfully!");
+        navigate('/profile');
+    }catch (error) {
+        console.error("Order submission failed:", error.response?.data || error.message);
+        // Error message details check panna:
+        alert(error.response?.data?.message || "Order placement failed. Check if you are logged in.");
+    } finally {
+        setLoading(false);
+    }
+};
     // Empty Cart UI State
     if (cart.length === 0) {
         return (

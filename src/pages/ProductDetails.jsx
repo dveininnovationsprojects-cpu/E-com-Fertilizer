@@ -52,7 +52,7 @@ const addToCartHandler = async (shouldNavigate = false) => {
 
     // Direct-ah frontend context-la mattum add pannunga
     addToCart({ ...product, quantity }); 
-    toast.success("Added to Cart pakka-va!");
+    toast.success("Added to Cart Successfully!");
 
     if (shouldNavigate) {
         navigate('/cart');
@@ -76,19 +76,20 @@ const addToCartHandler = async (shouldNavigate = false) => {
                         />
                     </motion.div>
                     
-                    {/* Thumbnail List */}
-                    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                        {[product.imageUrl, ...product.images].map((img, index) => (
-                            <div 
-                                key={index}
-                                onClick={() => setMainImage(img)}
-                                className={`w-20 h-20 md:w-24 md:h-24 min-w-max rounded-xl border-2 cursor-pointer overflow-hidden transition-all
-                                    ${mainImage === img ? 'border-[#79A206] shadow-md' : 'border-gray-100 opacity-60 hover:opacity-100'}`}
-                            >
-                                <img src={img} alt="thumb" className="w-full h-full object-contain bg-white" />
-                            </div>
-                        ))}
-                    </div>
+                   {/* Thumbnail List - Duplicate fix panniyachi */}
+<div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+    {/* product.images array-va mattum map pannunga */}
+    {product.images.map((img, index) => (
+        <div 
+            key={index}
+            onClick={() => setMainImage(img)}
+            className={`w-20 h-20 md:w-24 md:h-24 min-w-max rounded-xl border-2 cursor-pointer overflow-hidden transition-all
+                ${mainImage === img ? 'border-[#79A206] shadow-md' : 'border-gray-100 opacity-60 hover:opacity-100'}`}
+        >
+            <img src={img} alt={`thumb-${index}`} className="w-full h-full object-contain bg-white" />
+        </div>
+    ))}
+</div>
                 </div>
 
                 <div className="flex flex-col space-y-6">
