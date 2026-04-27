@@ -1,17 +1,19 @@
-import React, { useState, useEffect, useContext } from 'react'; // PUDHUSA ADD PANNATHU: useContext
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import API from "../api/axios";
 import { motion } from 'framer-motion';
 import { CartContext } from '../context/CartContext'; // PUDHUSA ADD PANNATHU: Namma CartContext
+import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
-    const { id } = useParams(); 
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [mainImage, setMainImage] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
 
-    // PUDHUSA ADD PANNATHU: Context-la irunthu addToCart function-a edukkurom
+    
     const { addToCart } = useContext(CartContext);
 
     useEffect(() => {
@@ -27,22 +29,40 @@ const ProductDetails = () => {
             }
         };
         fetchProduct();
-        window.scrollTo(0, 0); 
+        window.scrollTo(0, 0);
     }, [id]);
 
     if (loading) return (
         <div className="h-screen flex justify-center items-center">
             <i className="fa-solid fa-circle-notch fa-spin text-5xl text-[#79A206]"></i>
         </div>
-    );
+    );  
 
     if (!product) return <div className="text-center py-20 font-bold text-xl">Product Not Found!</div>;
+const addToCartHandler = async (shouldNavigate = false) => {
+    // Ippo backend call-a comment pannidunga (Temporary)
+    /*
+    try {
+        await API.post('/cart/add', {
+            productId: product._id,
+            quantity: quantity
+        });
+    } catch (error) { ... }
+    */
+
+    // Direct-ah frontend context-la mattum add pannunga
+    addToCart({ ...product, quantity }); 
+    toast.success("Added to Cart pakka-va!");
+
+    if (shouldNavigate) {
+        navigate('/cart');
+    }
+};
 
     return (
         <div className="max-w-7xl mx-auto px-4 md:px-10 py-10 md:py-20 bg-white">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                 
-                {/* 1. LEFT SIDE: Image Gallery */}
                 <div className="space-y-4">
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -71,7 +91,6 @@ const ProductDetails = () => {
                     </div>
                 </div>
 
-                {/* 2. RIGHT SIDE: Product Info */}
                 <div className="flex flex-col space-y-6">
                     <div>
                         <span className="bg-[#79A206]/10 text-[#79A206] px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest">
@@ -80,18 +99,13 @@ const ProductDetails = () => {
                         <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#333] mt-4 leading-tight">
                             {product.name}
                         </h1>
-                        <div className="flex items-center gap-4 mt-4">
-                            <div className="flex text-yellow-400 text-sm">
-                                {[1, 2, 3, 4, 5].map(s => <i key={s} className="fa-solid fa-star"></i>)}
-                            </div>
-                            <span className="text-gray-400 text-sm font-medium border-l pl-4">( 42 Customer Reviews )</span>
-                        </div>
+                        
                     </div>
 
                     <div className="border-y border-gray-100 py-6">
                         <div className="flex items-baseline gap-4">
                             <span className="text-4xl font-black text-[#79A206]">₹{product.price}.00</span>
-                            <span className="text-xl text-gray-400 line-through font-medium">₹{product.price + 200}.00</span>
+                            
                         </div>
                         <p className="text-gray-500 mt-4 leading-relaxed text-lg">
                             {product.description}
@@ -124,44 +138,22 @@ const ProductDetails = () => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-4">
-                            {/* PUDHUSA ADD PANNATHU: onClick function-la addToCart() call panrom */}
-                            <button 
-                                onClick={() => {
-                                    if(product.stock > 0) {
-                                        addToCart({ ...product, selectedQty: quantity });
-                                    } else {
-                                        alert("Stock illada mamey!");
-                                    }
-                                }}
-                                className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20"
-                            >
-                                <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
-                            </button>
-                            
-                            <button className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all">
-                                <i className="fa-solid fa-bolt mr-3 text-yellow-400"></i> Buy Now
-                            </button>
-                        </div>
-                    </div>
+    {/* Add to Cart - No alert, no popup, silent add */}
+    <button 
+        onClick={() => addToCartHandler(false)}
+        className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20"
+    >
+        <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
+    </button>
 
-                    {/* Features List */}
-                    <div className="grid grid-cols-2 gap-4 pt-8">
-                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-truck-fast"></i></div>
-                            Fast Delivery
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-leaf"></i></div>
-                            100% Organic
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-shield-halved"></i></div>
-                            Safe Payments
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
-                            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-[#79A206]"><i className="fa-solid fa-rotate-left"></i></div>
-                            7 Days Return
-                        </div>
+    {/* Buy Now - Add to cart and then Navigate to Cart page */}
+    <button 
+        onClick={() => addToCartHandler(true)}
+        className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all"
+    >
+        Buy Now
+    </button>
+</div>
                     </div>
                 </div>
             </div>

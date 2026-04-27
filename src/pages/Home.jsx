@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 // find this line and add useLocation
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -28,23 +28,33 @@ useEffect(() => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            let url = 'http://192.168.1.6:5000/api/products?';
-            
-            // Build Query URL dynamic-ah
-            if (categoryFromURL !== 'All') url += `category=${categoryFromURL}&`;
-            if (searchFromURL) url += `search=${searchFromURL}`;
+            const params = new URLSearchParams();
+            if (categoryFromURL && categoryFromURL !== 'All') {
+                params.append('category', categoryFromURL);
+            }
+            if (searchFromURL) {
+                params.append('search', searchFromURL);
+            }
+
+            const url = `http://localhost:5000/api/products?${params.toString()}`;
             
             const response = await axios.get(url);
             setProducts(response.data);
             setLoading(false);
+
+            // Auto-scroll logic
+            if (categoryFromURL && categoryFromURL !== 'All') {
+                setTimeout(() => {
+                    productSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
         } catch (error) {
             console.error("Error fetching products:", error);
             setLoading(false);
         }
     };
     fetchProducts();
-}, [categoryFromURL, searchFromURL]); // Dependency updated// URL category maaruna intha full block run aagum
-    // 2. Parallax Logic (Slider Movement)
+}, [categoryFromURL, searchFromURL]);
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const smoothX = useSpring(mouseX, { stiffness: 100, damping: 10 });
@@ -64,13 +74,12 @@ useEffect(() => {
         mouseY.set(0);
     };
 
-    // 3. Category Data (Matches your Schema Enums)
     const categories = [
-        { name: "Organic", icon: "fa-seedling", color: "#FFB347" },
-        { name: "Chemical", icon: "fa-flask", color: "#77DD77" },
-        { name: "Tools", icon: "fa-hammer", color: "#FF6961" },
-        { name: "Seeds", icon: "fa-leaf", color: "#84B6F4" }
-    ];
+    { name: "Bio Fertilizer", icon: "fa-seedling", color: "#FFB347" },
+    { name: "Organic Manure", icon: "fa-leaf", color: "#77DD77" },
+    { name: "Nursery Plants", icon: "fa-tree", color: "#FF6961" },
+    { name: "Quality Seeds", icon: "fa-seedling", color: "#84B6F4" }
+];
 
     const slides = [
         { sub: "Natural & Organic", title: "-40% Offer All Fertilizers.", img: "/images/fertilizer1.png" },
@@ -150,10 +159,9 @@ useEffect(() => {
             </div>
             <span className={`mt-4 font-bold text-sm uppercase tracking-wider ${categoryFromURL === 'All' ? 'text-[#79A206]' : 'text-gray-500'}`}>All Items</span>
         </div>
-
-        {categories.map((cat, i) => (
-            <div key={i} className="flex flex-col items-center group cursor-pointer" 
-                 onClick={() => navigate(`/?category=${cat.name}`)}> {/* navigation logic */}
+{categories.map((cat, i) => (
+    <div key={i} className="flex flex-col items-center group cursor-pointer" 
+         onClick={() => navigate(`/?category=${cat.name}`)}>
                 <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-2 shadow-sm border 
                     ${categoryFromURL === cat.name ? 'border-[#79A206] bg-[#79A206]/10 shadow-md' : 'border-gray-100'}`} 
                      style={{ backgroundColor: categoryFromURL === cat.name ? '' : cat.color + '15' }}>
@@ -214,11 +222,7 @@ useEffect(() => {
                                     <h3 className="text-lg font-semibold text-[#333] group-hover:text-[#79A206] transition-colors line-clamp-1">{p.name}</h3>
                                     <p className="text-[#79A206] font-black text-2xl mt-2">₹{p.price}.00</p>
                                     
-                                    <div className="flex justify-center mt-3 text-yellow-400 text-[10px] space-x-1">
-                                        {[1, 2, 3, 4, 5].map(s => (
-                                            <i key={s} className={`fa-${s <= p.rating ? 'solid' : 'regular'} fa-star`}></i>
-                                        ))}
-                                    </div>
+                                    
                                 </div>
                             </div>
                         ))}
