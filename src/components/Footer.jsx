@@ -60,9 +60,30 @@ const Footer = () => {
 </div>
 </div>
             </div>
-            <div className="w-full bg-[#79A206] py-5 text-center text-white text-[10px] font-bold tracking-[3px] uppercase">
-                © 2026 | Saraswathy Traders
-            </div>
+            <div className="bg-[#79A206] py-4 text-white text-[10px] md:text-xs font-bold uppercase tracking-widest border-t border-white/10">
+    <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-3">
+        
+        {/* Left Side: Copyright */}
+        <div className="opacity-90">
+            © 2026 | Saraswathy Traders
+        </div>
+
+        {/* Right Side: Your Credit with Link */}
+        <div className="opacity-90">
+            Developed by 
+            <a 
+                href="https://www.dveininnovations.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="ml-1 hover:underline decoration-white/50 underline-offset-4 transition-all"
+            >
+                Dvein Innovation
+            </a>
+        </div>
+
+    </div>
+</div>
+
         </footer>
     );
 };
