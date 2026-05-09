@@ -44,7 +44,7 @@ const Footer = () => {
                     <ul className="space-y-4 text-sm text-gray-500">
                         <li className="flex items-center"><i className="fa fa-location-dot mr-4 text-[#79A206] text-lg"></i>    Neyveli, TN</li>
                         <li className="flex items-center"><i className="fa fa-phone mr-4 text-[#79A206] text-lg"></i> +91 99448 48617</li>
-                        <li className="flex items-center"><i className="fa fa-envelope mr-4 text-[#79A206] text-lg"></i> saraswathytraders13@gmail.com</li>
+                        <li className="flex items-center"><i className="fa fa-envelope mr-4 text-[#79A206] text-lg"></i> saraswathytraders1234@gmail.com</li>
                     </ul>
                 </div>
                <div className="flex flex-col justify-center items-center md:items-end">
