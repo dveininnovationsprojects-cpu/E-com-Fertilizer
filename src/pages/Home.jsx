@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination, EffectFade } from 'swiper/modules';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { CartContext } from '../context/CartContext';
+import API from '../api/axios';
 
 // Swiper Styles
 import 'swiper/css';
@@ -31,22 +32,24 @@ useEffect(() => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const params = new URLSearchParams();
-            
+            // 1. URL params ready pannurom
+            const params = {};
             if (categoryFromURL && categoryFromURL !== 'All') {
-                params.append('category', categoryFromURL);
+                params.category = categoryFromURL;
             }
             if (searchFromURL) {
-                params.append('search', searchFromURL);
+                params.search = searchFromURL;
             }
 
-            const url = `http://localhost:5000/api/products?${params.toString()}`;
-            const response = await axios.get(url);
+            // 2. ORE ORU API CALL (Clean-ah axiosConfig use pannurom)
+            // Backend-ku query params anuppurom
+            const response = await API.get('/products', { params });
+
+            // 3. Data-va set pannurom
             setProducts(response.data);
             setLoading(false);
 
-            // 🟢 FIX: Page land aagum pothu scroll aagathu. 
-            // Explicit-ah URL-la search query (category) irundha mattum scroll aagum.
+            // 🟢 Page Scroll Logic
             if (location.search) { 
                 setTimeout(() => {
                     productSectionRef.current?.scrollIntoView({ 
@@ -56,12 +59,13 @@ useEffect(() => {
                 }, 100);
             }
         } catch (error) {
-            console.error("Error fetching products:", error);
+            console.error("Error fetching products:", error.message);
             setLoading(false);
         }
     };
+
     fetchProducts();
-}, [categoryFromURL, searchFromURL, location.search]); 
+}, [categoryFromURL, searchFromURL, location.search]);
 
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);

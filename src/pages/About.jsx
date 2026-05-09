@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import API from '../api/axios';
 
 
 import logo from "../assets/logo.jpeg";
@@ -27,17 +28,20 @@ const About = () => {
     return () => clearInterval(timer);
   }, [slides.length]);
 
-  // Axios Integration Template
-  useEffect(() => {
+useEffect(() => {
     const fetchCompanyData = async () => {
-      try {
-        // const response = await axios.get('http://localhost:5000/api/about');
-      } catch (error) {
-        console.error("Axios Error:", error);
-      }
+        try {
+            // Localhost link-ah mothama thookiyachu
+            const response = await API.get('/about'); 
+            console.log("Company data fetched");
+        } catch (error) {
+            // Backend-la innum '/about' route create pannala na error varum, 
+            // adhu prechana illa, but localhost link irukka koodathu.
+            console.error("Fetch Error:", error.message);
+        }
     };
     fetchCompanyData();
-  }, []);
+}, []);
 
   return (
     <div className="page">
