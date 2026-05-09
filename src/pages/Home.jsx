@@ -32,6 +32,7 @@ useEffect(() => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
+            
             if (categoryFromURL && categoryFromURL !== 'All') {
                 params.append('category', categoryFromURL);
             }
@@ -40,15 +41,18 @@ useEffect(() => {
             }
 
             const url = `http://localhost:5000/api/products?${params.toString()}`;
-            
             const response = await axios.get(url);
             setProducts(response.data);
             setLoading(false);
 
-            // Auto-scroll logic
-            if (categoryFromURL && categoryFromURL !== 'All') {
+            // 🟢 FIX: Page land aagum pothu scroll aagathu. 
+            // Explicit-ah URL-la search query (category) irundha mattum scroll aagum.
+            if (location.search) { 
                 setTimeout(() => {
-                    productSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    productSectionRef.current?.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
                 }, 100);
             }
         } catch (error) {
@@ -57,7 +61,8 @@ useEffect(() => {
         }
     };
     fetchProducts();
-}, [categoryFromURL, searchFromURL]);
+}, [categoryFromURL, searchFromURL, location.search]); 
+
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const smoothX = useSpring(mouseX, { stiffness: 100, damping: 10 });
@@ -78,17 +83,31 @@ useEffect(() => {
     };
 
     const categories = [
-    { name: "Bio Fertilizer", icon: "fa-seedling", color: "#FFB347" },
-    { name: "Organic Manure", icon: "fa-leaf", color: "#77DD77" },
-    { name: "Nursery Plants", icon: "fa-tree", color: "#FF6961" },
-    { name: "Quality Seeds", icon: "fa-seedling", color: "#84B6F4" }
+    { name: "Humic Acid", icon: "fa-flask-vial", color: "#9b59b6" },
+    { name: "Seaweed", icon: "fa-water", color: "#1abc9c" },
+    { name: "Potassium Humate", icon: "fa-atom", color: "#34495e" },
+    { name: "Neem Oil", icon: "fa-droplet", color: "#27ae60" },
+    { name: "Organic Granules", icon: "fa-cubes", color: "#d35400" },
+    { name: "Fish Oil", icon: "fa-fish", color: "#2980b9" }
 ];
 
     const slides = [
-        { sub: "Natural & Organic", title: "-40% Offer All Fertilizers.", img: "/images/fertilizer1.png" },
-        { sub: "Farmer's Choice", title: "Best Bio Boosters Growth.", img: "/images/fertilizer2.png" },
-        { sub: "Premium Quality", title: "Pure Potash Power Mix.", img: "/images/fertilizer3.png" }
-    ];
+    { 
+        sub: "Natural & Organic", 
+        titleLines: ["Humic Power", "Live Soil", "Strong Roots."], 
+        img: "/images/fertilizer1.png" 
+    },
+    { 
+        sub: "Farmer's Choice", 
+        titleLines: ["Bio stimulants", "For Faster", "Crop Growth."], 
+        img: "/images/fertilizer2.png" 
+    },
+    { 
+        sub: "Premium Quality", 
+        titleLines: ["Healthy Crops", "For Better", "Harvest."], 
+        img: "/images/fertilizer3.png" 
+    }
+];
 
     
     const scrollToProducts = () => {
@@ -118,21 +137,24 @@ useEffect(() => {
                                 onMouseLeave={handleMouseLeave}
                             >
                                 <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left z-20">
-                                    <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="harmic-sub uppercase text-sm font-bold">
-                                        {slide.sub}
-                                    </motion.p>
-                                    <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} className="harmic-title font-bold">
-                                        {slide.title.split(' ').map((word, i) => (
-                                            <span key={i} className="block leading-tight">{word}</span>
-                                        ))}
-                                    </motion.h2>
-                                    <button 
-                                        onClick={scrollToProducts}
-                                        className="bg-[#79A206] text-white px-10 py-4 rounded-sm font-bold tracking-widest text-xs uppercase hover:bg-[#333] transition-all shadow-lg"
-                                    >
-                                        Shop Now
-                                    </button>
-                                </div>
+    <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="harmic-sub uppercase text-sm font-bold">
+        {slide.sub}
+    </motion.p>
+    
+    <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} className="harmic-title font-bold">
+        {/* FIX: line-by-line mapping */}
+        {slide.titleLines.map((line, i) => (
+            <span key={i} className="block leading-tight">{line}</span>
+        ))}
+    </motion.h2>
+
+    <button 
+        onClick={scrollToProducts}
+        className="bg-[#79A206] text-white px-10 py-4 rounded-sm font-bold tracking-widest text-xs uppercase hover:bg-[#333] transition-all shadow-lg mt-6"
+    >
+        Shop Now
+    </button>
+</div>
 
                                 <div className="w-full md:w-1/2 flex flex-col justify-center items-center relative mt-10 md:mt-0">
                                     <motion.div style={{ x: imgX, y: imgY }} className="relative z-10 transition-all duration-100">
@@ -154,31 +176,33 @@ useEffect(() => {
         <div className="w-20 h-1 bg-[#79A206] mx-auto mt-4 rounded-full"></div>
     </div>
 
-   <div className="flex flex-wrap justify-center gap-6 md:gap-12">
-        {/* ALL ITEMS ICON */}
-        <div className="flex flex-col items-center group cursor-pointer" onClick={() => { navigate('/'); setTimeout(() => scrollToProducts(), 100); }}>
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-2 shadow-sm border 
-                ${categoryFromURL === 'All' ? 'border-[#79A206] bg-[#79A206]/10' : 'border-gray-100'}`}>
-                <i className="fa-solid fa-border-all text-2xl text-[#79A206]"></i>
-            </div>
-            <span className={`mt-4 font-bold text-sm uppercase tracking-wider ${categoryFromURL === 'All' ? 'text-[#79A206]' : 'text-gray-500'}`}>All Items</span>
+  {/* CATEGORIES SECTION UI */}
+<div className="flex flex-wrap justify-center gap-4 md:gap-8 max-w-6xl mx-auto">
+    {/* ALL ITEMS ICON */}
+    <div className="flex flex-col items-center group cursor-pointer" onClick={() => { navigate('/'); setTimeout(() => scrollToProducts(), 100); }}>
+        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-2 shadow-sm border 
+            ${categoryFromURL === 'All' ? 'border-[#79A206] bg-[#79A206]/10' : 'border-gray-100 bg-gray-50'}`}>
+            <i className="fa-solid fa-border-all text-xl md:text-2xl text-[#79A206]"></i>
         </div>
-{categories.map((cat, i) => (
-    <div key={i} className="flex flex-col items-center group cursor-pointer" 
-         onClick={() => navigate(`/?category=${cat.name}`)}>
-                <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-2 shadow-sm border 
-                    ${categoryFromURL === cat.name ? 'border-[#79A206] bg-[#79A206]/10 shadow-md' : 'border-gray-100'}`} 
-                     style={{ backgroundColor: categoryFromURL === cat.name ? '' : cat.color + '15' }}>
-                    
-                    <i className={`fa-solid ${cat.icon} text-2xl transition-colors`} 
-                       style={{ color: categoryFromURL === cat.name ? '#79A206' : cat.color }}></i>
-                </div>
-                <span className={`mt-4 font-bold text-sm uppercase tracking-wider ${categoryFromURL === cat.name ? 'text-[#79A206]' : 'text-gray-500'}`}>
-                    {cat.name}
-                </span>
-            </div>
-        ))}
+        <span className={`mt-3 font-bold text-[10px] md:text-xs uppercase tracking-wider text-center ${categoryFromURL === 'All' ? 'text-[#79A206]' : 'text-gray-500'}`}>All Items</span>
     </div>
+
+    {categories.map((cat, i) => (
+        <div key={i} className="flex flex-col items-center group cursor-pointer w-20 md:w-24" 
+             onClick={() => navigate(`/?category=${cat.name}`)}>
+            <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 group-hover:-translate-y-2 shadow-sm border 
+                ${categoryFromURL === cat.name ? 'border-[#79A206] bg-[#79A206]/10 shadow-md' : 'border-gray-100'}`} 
+                 style={{ backgroundColor: categoryFromURL === cat.name ? '' : cat.color + '15' }}>
+                
+                <i className={`fa-solid ${cat.icon} text-xl md:text-2xl transition-colors`} 
+                   style={{ color: categoryFromURL === cat.name ? '#79A206' : cat.color }}></i>
+            </div>
+            <span className={`mt-3 font-bold text-[10px] md:text-xs uppercase tracking-wider text-center line-clamp-1 ${categoryFromURL === cat.name ? 'text-[#79A206]' : 'text-gray-500'}`}>
+                {cat.name}
+            </span>
+        </div>
+    ))}
+</div>
 </section>
 
             {/* --- PRODUCTS GRID (DYNAMIC FROM BACKEND) --- */}

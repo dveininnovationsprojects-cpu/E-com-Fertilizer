@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 const AdminDashboard = () => {
     const [adminUser, setAdminUser] = useState({ name: 'Loading...', email: '' });
@@ -16,6 +16,7 @@ const AdminDashboard = () => {
    
     const [showAddModal, setShowAddModal] = useState(false); 
     const [showLogoutModal, setShowLogoutModal] = useState(false); 
+    const [productToDelete, setProductToDelete] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [editProductId, setEditProductId] = useState(null);
     const [images, setImages] = useState([]);
@@ -27,6 +28,9 @@ const AdminDashboard = () => {
     const [filterCategory, setFilterCategory] = useState("All");
     const [filterStatus, setFilterStatus] = useState("All");
     const [paymentToggles, setPaymentToggles] = useState({}); // Tracks "Verified" checkbox
+    const [qrImage, setQrImage] = useState(null);
+const [qrPreview, setQrPreview] = useState(adminUser.qrCode || "");
+const [newUpiId, setNewUpiId] = useState(adminUser.upiId || "");
 
 
 const [formData, setFormData] = useState({
@@ -79,7 +83,11 @@ const [formData, setFormData] = useState({
             const userData = res.data.user || res.data;
             setAdminUser(userData);
             setProfileData({ name: userData.name, email: userData.email });
-        } catch (err) {
+            if (userData.upiId) setNewUpiId(userData.upiId);
+            if (userData.qrCode) {
+            setQrPreview(userData.qrCode); 
+        }
+    } catch (err){
             const storedUserStr = localStorage.getItem('user');
             if (storedUserStr) {
                 try {
@@ -211,15 +219,20 @@ const fetchData = async () => {
         }
     };
 
-    const handleDeleteProduct = async (id) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-        try {
-            await API.delete(`/admin/products/${id}`);
-            toast.success("Product deleted successfully."); // Updated
-            fetchData();
-        } catch (err) {
-            toast.error(err.response?.data?.message || "Failed to delete product."); // Updated from alert
-        }
+    
+const handleDeleteProduct = (id) => {
+    setProductToDelete(id);
+};
+
+const confirmDeleteProduct = async () => {
+    try {
+        await API.delete(`/admin/products/${productToDelete}`);
+        toast.success("Product deleted successfully."); 
+        fetchData();
+    } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to delete product."); 
+    } finally {
+        setProductToDelete(null); // Success aanaalum error aanaalum modal-ah close pannidum
     }
 };
 
@@ -242,30 +255,50 @@ const fetchData = async () => {
         }
     };
 
-    const handleProfileUpdate = async (e) => {
-        e.preventDefault();
-        try {
-            await API.put('auth/profile', profileData);
-            toast.success("Profile updated successfully!");
-            setAdminUser(prev => ({ ...prev, name: profileData.name, email: profileData.email }));
-            
-            const storedUserStr = localStorage.getItem('user');
-            if(storedUserStr) {
-                let storedUser = JSON.parse(storedUserStr);
-                if(storedUser.user) {
-                    storedUser.user.name = profileData.name;
-                    storedUser.user.email = profileData.email;
-                } else {
-                    storedUser.name = profileData.name;
-                    storedUser.email = profileData.email;
-                }
-                localStorage.setItem('user', JSON.stringify(storedUser));
-            }
-            fetchAdminProfile();
-        } catch (err) {
-        toast.error(err.response?.data?.message || "Failed to update profile."); 
+const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+
+    // 1. Basic Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(profileData.email)) {
+        return toast.error("Please enter a valid email address mamey!");
     }
-    };
+
+    // 2. Name validation
+    if (profileData.name.length < 3) {
+        return toast.error("Name must be at least 3 characters.");
+    }
+
+    try {
+        setLoading(true);
+        const res = await API.put('auth/profile', profileData);
+        
+        // Success Toast
+        toast.success("Profile updated successfully!");
+        
+        // Update Local State
+        const updatedUser = res.data.user || res.data;
+        setAdminUser(prev => ({ ...prev, name: updatedUser.name, email: updatedUser.email }));
+        
+        // Update LocalStorage (so reload pannaalum name maarathu)
+        const storedUserStr = localStorage.getItem('user');
+        if (storedUserStr) {
+            let storedUser = JSON.parse(storedUserStr);
+            if (storedUser.user) {
+                storedUser.user.name = updatedUser.name;
+                storedUser.user.email = updatedUser.email;
+            } else {
+                storedUser.name = updatedUser.name;
+                storedUser.email = updatedUser.email;
+            }
+            localStorage.setItem('user', JSON.stringify(storedUser));
+        }
+    } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to update profile.");
+    } finally {
+        setLoading(false);
+    }
+};
 
    const handlePasswordChange = async (e) => {
     e.preventDefault();
@@ -293,6 +326,34 @@ const fetchData = async () => {
             window.location.href = '/';
         }
     };
+const handleQRUpdate = async (e) => {
+    e.preventDefault();
+    const data = new FormData();
+    if (qrImage) data.append('qrCode', qrImage);
+    data.append('upiId', newUpiId);
+
+    try {
+        setLoading(true);
+        const res = await API.put('/admin/update-upi', data, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        
+        const successMsg = res.data.message || "Payment settings updated successfully!";
+        toast.success(successMsg);
+        
+        const updatedData = res.data.user || res.data;
+        if (updatedData.upiId) setNewUpiId(updatedData.upiId); 
+        if (updatedData.qrCode) setQrPreview(updatedData.qrCode);
+        
+        setQrImage(null);
+    } catch (err) {
+        console.error(err);
+        toast.error(err.response?.data?.message || "Failed to update.");
+    } finally {
+        setLoading(false);
+    }
+};
 
     // --- FILTERING & PAGINATION LOGIC ---
     const getPaginatedData = (array) => {
@@ -431,6 +492,7 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
     // --- 5. RENDER COMPONENTS ---
     return (
         <div style={s.container}>
+            <Toaster position="top-center" reverseOrder={false} />
             
             {/* MOBILE TOP BAR */}
             <div style={s.mobileHeader}>
@@ -552,12 +614,19 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                             <select style={s.filterSelect} value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
-                                <option value="All">All Categories</option>
-                                <option value="Organic">Organic</option>
-                                <option value="Chemical">Chemical</option>
-                                <option value="Tools">Tools</option>
-                                <option value="Seeds">Seeds</option>
-                            </select>
+    <option value="All">All Categories</option>
+    <option value="Bio Fertilizer">Bio Fertilizer</option>
+    <option value="Organic Manure">Organic Manure</option>
+    <option value="Nursery Plants">Nursery Plants</option>
+    <option value="Quality Seeds">Quality Seeds</option>
+    {/* 🟢 PUTHUSA ADD PANNATHU */}
+    <option value="Humic Acid">Humic Acid</option>
+    <option value="Seaweed">Seaweed</option>
+    <option value="Potassium Humate">Potassium Humate</option>
+    <option value="Neem Oil">Neem Oil</option>
+    <option value="Organic Granules">Organic Granules</option>
+    <option value="Fish Oil">Fish Oil</option>
+</select>
                         </div>
 
                         {/* Product List */}
@@ -639,18 +708,21 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                                         </div>
 
                                         <div style={s.formGroup}>
-                                            <label style={s.label}>Category</label>
-                                           <select 
-    style={s.input} 
-    value={formData.category} 
-    onChange={e => setFormData({...formData, category: e.target.value})}
->
-    <option value="Bio Fertilizer">Bio Fertilizer</option>
-    <option value="Organic Manure">Organic Manure</option>
-    <option value="Nursery Plants">Nursery Plants</option>
-    <option value="Quality Seeds">Quality Seeds</option>
-</select>
-                                        </div>
+    <label style={s.label}>Category</label>
+    <select 
+        style={s.input} 
+        value={formData.category} 
+        onChange={e => setFormData({...formData, category: e.target.value})}
+    >
+
+        <option value="Humic Acid">Humic Acid</option>
+        <option value="Seaweed">Seaweed</option>
+        <option value="Potassium Humate">Potassium Humate</option>
+        <option value="Neem Oil">Neem Oil</option>
+        <option value="Organic Granules">Organic Granules</option>
+        <option value="Fish Oil">Fish Oil</option>
+    </select>
+</div>
 
                                         <div style={s.formGroup}>
                                             <label style={s.label}>Description</label>
@@ -976,15 +1048,29 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                             <div style={s.card}>
                                 <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Update Details</h3>
                                 <form onSubmit={handleProfileUpdate}>
-                                    <div style={s.formGroup}>
-                                        <label style={s.label}>Full Name</label>
-                                        <input style={s.input} value={profileData.name} onChange={e => setProfileData({...profileData, name: e.target.value})} required />
-                                    </div>
-                                    <div style={s.formGroup}>
-                                        <label style={s.label}>Email Address</label>
-                                        <input type="email" style={s.input} value={profileData.email} onChange={e => setProfileData({...profileData, email: e.target.value})} required />
-                                    </div>
-                                    <button type="submit" style={s.submitBtn}>Save Profile Changes</button>
+                                {/* Update Details Card kulla */}
+<div style={s.formGroup}>
+    <label style={s.label}>Full Name</label>
+    <input 
+        style={s.input} 
+        value={profileData.name} 
+        onChange={e => setProfileData({...profileData, name: e.target.value})} 
+        required 
+    />
+</div>
+<div style={s.formGroup}>
+    <label style={s.label}>Email Address</label>
+    <input 
+        type="email" // <--- 'text' nu irundha 'email' nu mathunga
+        style={s.input} 
+        value={profileData.email} 
+        onChange={e => setProfileData({...profileData, email: e.target.value})} 
+        required 
+    />
+</div>
+<button type="submit" disabled={loading} style={s.submitBtn}>
+    {loading ? 'Saving...' : 'Save Profile Changes'}
+</button>
                                 </form>
                             </div>
 
@@ -1007,6 +1093,85 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                                     <button type="submit" style={{...s.submitBtn, backgroundColor: theme.text}}>Update Password</button>
                                 </form>
                             </div>
+<div style={s.card}>
+    <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '20px' }}>Payment Settings</h3>
+    <form onSubmit={handleQRUpdate}>
+        
+        {/* UPI ID Input Box */}
+        <div style={s.formGroup}>
+            <label style={s.label}>Business UPI ID</label>
+            <input 
+                style={s.input} 
+                placeholder="e.g., name@oksbi" 
+                value={newUpiId} 
+                onChange={(e) => setNewUpiId(e.target.value)} 
+            />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginBottom: '20px', borderTop: `1px solid ${theme.border}`, paddingTop: '15px' }}>
+            <div style={{ width: '150px', height: '150px', border: `1px solid ${theme.border}`, borderRadius: '8px', overflow: 'hidden', backgroundColor: '#f9f9f9', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {qrPreview ? (
+                    <img src={qrPreview} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="QR Preview" />
+                ) : (
+                    <span style={{ fontSize: '12px', color: theme.subText }}>No QR Uploaded</span>
+                )}
+            </div>
+            
+            <div style={{ width: '100%' }}>
+    <label style={s.label}>Change QR Image (Optional)</label>
+    
+    {/* Hidden original input */}
+    <input 
+        type="file" 
+        id="qr-upload"
+        accept="image/*" 
+        style={{ display: 'none' }} // Itha hide panniduvom
+        onChange={(e) => {
+            if (e.target.files[0]) {
+                setQrImage(e.target.files[0]);
+                setQrPreview(URL.createObjectURL(e.target.files[0]));
+            }
+        }} 
+    />
+    
+    {/* Custom Styled Button with Icon */}
+    <label 
+        htmlFor="qr-upload" 
+        style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '12px',
+            backgroundColor: '#f1f3f0',
+            border: `1px dashed ${theme.primary}`,
+            borderRadius: '8px',
+            cursor: 'pointer',
+            color: theme.primary,
+            fontSize: '14px',
+            fontWeight: '600',
+            transition: 'all 0.2s'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#eaf0df'}
+        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f1f3f0'}
+    >
+        <i className="fa-solid fa-cloud-arrow-up"></i> 
+        {qrImage ? qrImage.name : "Choose New QR Image"}
+    </label>
+    
+    {qrImage && (
+        <p style={{ fontSize: '11px', color: theme.success, marginTop: '5px', textAlign: 'center' }}>
+            ✓ File selected: {qrImage.name}
+        </p>
+    )}
+</div>
+        </div>
+
+        <button type="submit" disabled={loading} style={{ ...s.submitBtn, backgroundColor: theme.primary }}>
+            {loading ? 'Updating...' : 'Save Payment Settings'}
+        </button>
+    </form>
+</div>
 
                         </div>
                     </div>
@@ -1070,6 +1235,21 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                     </div>
                 </div>
             )}
+            {/* CUSTOM DELETE MODAL */}
+{productToDelete && (
+    <div style={s.modalOverlay}>
+        <div style={{...s.modalContent, maxWidth: '400px', padding: '25px'}}>
+            <h3 style={{fontSize: '18px', fontWeight: '600', marginBottom: '15px', color: theme.text}}>Delete Product</h3>
+            <p style={{fontSize: '14px', color: theme.subText, marginBottom: '25px', lineHeight: '1.5'}}>
+                Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+            <div style={s.modalActionRow}>
+                <button onClick={() => setProductToDelete(null)} style={s.cancelBtn}>Cancel</button>
+                <button onClick={confirmDeleteProduct} style={s.dangerBtn}>Delete</button>
+            </div>
+        </div>
+    </div>
+)}
 
             {/* MOBILE OVERLAY */}
             {isSidebarOpen && !isDesktop && (

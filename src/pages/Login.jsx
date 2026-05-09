@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import API from "../api/axios"; // Important: Using centralized API
+import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,20 +37,17 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify(res.data));
         
         // Setup Modal Data using robust property checking
-        const role = res.data.role || res.data.user?.role; 
+        const role = res.data.role || res.data.user?.role;
         const name = res.data.name || res.data.user?.name || "User";
-        
+
         setUserRole(role);
         setUserName(name);
-        
-        // FIX: Route admins to '/admin' and all normal users to '/profile'
-        setRedirectPath(role === 'admin' ? '/admin' : '/profile');
-        
-        // Show Success Popup
+        setRedirectPath(role === 'admin' ? '/admin' : '/');
+        toast.success(`Welcome back, ${name}!`);
         setShowSuccessModal(true);
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+      toast.error(error.response?.data?.message || "Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -134,6 +132,7 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       <div style={styles.card}>
         <h2 style={styles.title}>Saral-X Login</h2>
         <form onSubmit={handleLogin} style={styles.form}>
@@ -181,13 +180,12 @@ const Login = () => {
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
             </div>
-            <h3 style={styles.modalTitle}>Login Successful</h3>
+            <h3 style={styles.modalTitle}>Login Successful!</h3>
             <p style={styles.modalText}>
-              Welcome back, <strong>{userName}</strong>!<br/>
-              Redirecting you to the {userRole === 'admin' ? 'Admin Dashboard' : 'Profile'}...
+              Welcome back, <strong>{userName}</strong>!
             </p>
             <button onClick={handleProceed} style={styles.proceedBtn}>
-              Continue to {userRole === 'admin' ? 'Dashboard' : 'Profile'}
+              Continue
             </button>
           </div>
         </div>

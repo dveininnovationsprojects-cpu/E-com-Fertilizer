@@ -19,16 +19,12 @@ const Header = () => {
     const { cart } = useContext(CartContext);
     const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
-    const handleCategoryChange = (e) => {
-        const category = e.target.value;
-        if (category === 'All Category') {
-            navigate('/'); 
-        } else {
-
-            navigate(`/?category=${category}`); 
-        }
-    };
-    useEffect(() => {
+  const handleCategoryChange = (e) => {
+    const category = e.target.value;
+    // 🟢 navigate('/') ku pathila explicitly category=All nu anupanum
+    navigate(`/?category=${category}`); 
+};
+    useEffect(() => { 
         const fetchSuggestions = async () => {
             if (searchTerm.length > 0) {
                 try {
@@ -52,11 +48,12 @@ const Header = () => {
                 
                <div className="flex items-center flex-shrink-0">
     <button 
-        className="md:hidden mr-2 text-gray-700 text-xl"
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-    >
-        <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars-staggered'}`}></i>
-    </button>
+    className="md:hidden mr-2 text-gray-700 text-xl"
+    onClick={() => setIsMenuOpen(!isMenuOpen)}
+>
+    {/* 🟢 Straight equal lines icon */}
+    <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+</button>
     <Link to="/" className="flex items-center">
         <img src="/images/logo.png" alt="Saraswathy" className="h-8 md:h-11 w-auto object-contain" />
         {/* hidden sm:block will keep it hidden on small mobiles */}
@@ -67,9 +64,16 @@ const Header = () => {
 <div className="flex flex-1 max-w-2xl border-2 border-gray-100 rounded-md bg-gray-50 h-9 md:h-11 relative mx-1 md:mx-0">
     <select 
     onChange={handleCategoryChange} 
-    className="bg-transparent px-1 md:px-2 border-r text-[10px] md:text-xs font-bold outline-none text-gray-500 max-w-[70px] md:max-w-none"
+    className="bg-transparent px-0 md:px-1 border-r text-[1px] md:text-xs font-bold outline-none text-gray-500 max-w-[85px] md:max-w-none cursor-pointer overflow-hidden whitespace-nowrap"
+    style={{ textOverflow: 'ellipsis' }} // 🟢 Ithu thaan arrow mela text varatha thadukkum
 >
     <option value="All">All Category</option>
+    <option value="Humic Acid">Humic Acid</option>
+    <option value="Seaweed">Seaweed</option>
+    <option value="Potassium Humate">Potassium Humate</option>
+    <option value="Neem Oil">Neem Oil</option>
+    <option value="Organic Granules">Organic Granules</option>
+    <option value="Fish Oil">Fish Oil</option>
     <option value="Bio Fertilizer">Bio Fertilizer</option>
     <option value="Organic Manure">Organic Manure</option>
     <option value="Nursery Plants">Nursery Plants</option>

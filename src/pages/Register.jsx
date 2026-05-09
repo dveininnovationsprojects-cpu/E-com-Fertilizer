@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import API from "../api/axios"; // Important: Using centralized API
+import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import toast, { Toaster } from "react-hot-toast";
 
 const BASE = "http://192.168.1.6:5000/api";
 
@@ -34,7 +35,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!passwordMatch) {
-      setErrorMessage("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
     setLoading(true);
@@ -48,11 +49,12 @@ const Register = () => {
       });
       
       if (res.data.success || res.status === 201) {
-        setShowSuccessModal(true); // Show custom modal instead of alert
+        toast.success("Account created successfully! Please login.");
+        setShowSuccessModal(true);
       }
     } catch (error) {
       console.error(error);
-      setErrorMessage(error.response?.data?.message || "Registration failed. Try again.");
+      toast.error(error.response?.data?.message || "Registration failed. Try again.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +62,7 @@ const Register = () => {
 
   const handleProceedToLogin = () => {
     setShowSuccessModal(false);
-    navigate("/login");
+    navigate("/profile");
   };
 
   const styles = {
@@ -140,6 +142,7 @@ const Register = () => {
 
   return (
     <div style={styles.container}>
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       <div style={styles.card}>
         <h2 style={styles.title}>Create Account 🌱</h2>
         

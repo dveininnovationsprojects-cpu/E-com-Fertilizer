@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import API from "../api/axios";
 import "../App.css";
+import toast, { Toaster } from "react-hot-toast";
+
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -15,6 +17,7 @@ const Profile = () => {
   const [supportSubject, setSupportSubject] = useState("");
   const [supportSending, setSupportSending] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [user, setUser] = useState({
     name: "", username: "", email: "", phone: "", address: "", gender: "", _id: "",
@@ -24,6 +27,12 @@ const Profile = () => {
   const [addressForm, setAddressForm] = useState({
     line1: "", line2: "", city: "", area: "", country: "India", pinCode: ""
   });
+   // Catch state from navigation (e.g., from Cart to Orders)
+  useEffect(() => {
+    if (location.state && location.state.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location]);
 
   useEffect(() => {
     fetchProfile();
@@ -33,6 +42,7 @@ const Profile = () => {
   useEffect(() => {
     if (activeTab === "orders") fetchOrders();
   }, [activeTab]);
+ 
 
   // Fetch fresh profile data
   const fetchProfile = async () => {
@@ -95,10 +105,10 @@ const Profile = () => {
     
     try {
       await API.put(`/orders/${orderId}/cancel`);
-      alert("Order cancelled successfully!");
+      toast.success("Order cancelled successfully!");
       fetchOrders(); // Refresh the list after cancellation
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to cancel order.");
+      toast.error(err.response?.data?.message || "Failed to cancel order.");
     }
   };
 
@@ -114,17 +124,17 @@ const Profile = () => {
         setUser(updatedUser);
         window.dispatchEvent(new Event("storage"));
         setEditMode(false);
-        alert("Profile updated successfully");
+        toast.success("Profile updated successfully");
       }
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Update failed");
+      toast.error(err.response?.data?.message || "Update failed");
     }
   };
 
   const handleAddressSave = async () => {
     if(!addressForm.line1 || !addressForm.city || !addressForm.pinCode) {
-      return alert("Please fill the mandatory address fields (*).");
+      return toast.error("Please fill the mandatory address fields (*).");
     }
     const combinedAddress = `${addressForm.line1}, ${addressForm.line2 ? addressForm.line2 + ', ' : ''}${addressForm.area ? addressForm.area + ', ' : ''}${addressForm.city}, ${addressForm.country} - ${addressForm.pinCode}`;
     
@@ -136,29 +146,29 @@ const Profile = () => {
         const updatedUser = res.data.user || res.data;
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
-        alert("Address saved successfully!");
+        toast.success("Address saved successfully!");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to save address");
+      toast.error(err.response?.data?.message || "Failed to save address");
     }
   };
 
   const handlePasswordUpdate = async () => {
-    if (!passwords.newPwd) return alert("Please enter a new password");
-    if (passwords.newPwd !== passwords.confirm) return alert("New passwords do not match!");
+    if (!passwords.newPwd) return toast.error("Please enter a new password");
+    if (passwords.newPwd !== passwords.confirm) return toast.error("New passwords do not match!");
     
     try {
       await API.put("/auth/profile", { password: passwords.newPwd });
-      alert("Password changed successfully.");
+      toast.success("Password changed successfully.");
       setPasswords({ current: "", newPwd: "", confirm: "" });
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to change password.");
+      toast.error(err.response?.data?.message || "Failed to change password.");
     }
   };
 
 const handleSupportSend = async () => {
-    if (!supportSubject.trim()) return alert("Please enter a subject.");
-    if (!supportMsg.trim()) return alert("Please write a message.");
+    if (!supportSubject.trim()) return toast.error("Please enter a subject.");
+    if (!supportMsg.trim()) return toast.error("Please write a message.");
     setSupportSending(true);
     try {
       // Direct-a backend-ku anupputhu. user._id token valiya poidum.
@@ -166,12 +176,12 @@ const handleSupportSend = async () => {
         subject: supportSubject,
         message: supportMsg,
       });
-      alert("Message sent successfully!");
+      toast.success("Message sent successfully!");
       setSupportMsg("");
       setSupportSubject("");
     } catch (err) {
       console.error(err);
-      alert("Failed to send message. Try again.");
+      toast.error("Failed to send message. Try again.");
     } finally {
       setSupportSending(false);
     }
@@ -190,6 +200,7 @@ const handleSupportSend = async () => {
 
   return (
     <div className="profile-container">
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       {menuOpen && <div className="sidebar-overlay" onClick={() => setMenuOpen(false)}></div>}
 
       {/* SIDEBAR */}
@@ -199,9 +210,12 @@ const handleSupportSend = async () => {
             <h2>Saral-X</h2>
             <p>User Portal</p>
           </div>
-          <button className="sidebar-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-            <i className={`fa-solid ${menuOpen ? "fa-xmark" : "fa-bars"}`}></i>
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <i className="fa-solid fa-house" onClick={() => navigate("/")} style={{ cursor: "pointer", color: "#79A206", fontSize: "1rem" }} title="Go to Home"></i>
+            <button className="sidebar-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+              <i className={`fa-solid ${menuOpen ? "fa-xmark" : "fa-bars"}`}></i>
+            </button>
+          </div>
         </div>
 
         <ul className={`sidebar-menu ${menuOpen ? "open" : ""}`}>
@@ -220,10 +234,14 @@ const handleSupportSend = async () => {
           <li className={activeTab === "support" ? "active" : ""} onClick={() => { setActiveTab("support"); setMenuOpen(false); }}>
             <i className="fa-solid fa-headset"></i> Support
           </li>
-          <li className="sidebar-logout-mobile" onClick={handleLogout}>
-            <i className="fa-solid fa-right-from-bracket"></i> Logout
-          </li>
         </ul>
+
+        <div className="sidebar-footer">
+          <p>{user.name}</p>
+          <button onClick={handleLogout}>
+            <i className="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
       </div>
 
       {/* CONTENT */}
