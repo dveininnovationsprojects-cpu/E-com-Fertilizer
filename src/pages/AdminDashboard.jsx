@@ -35,8 +35,8 @@ const [newUpiId, setNewUpiId] = useState(adminUser.upiId || "");
 
 const [formData, setFormData] = useState({
     name: '', 
-    category: 'Bio Fertilizer', 
-    mrp: '',   // 👈 Idhu empty string-ah irukanum
+    category: 'Humic Acid', 
+    mrp: '',
     price: '', 
     stock: '', 
     description: ''
@@ -147,12 +147,12 @@ const fetchData = async () => {
         setFilterStatus("All");
     };
 
-  const openAddModal = () => {
+const openAddModal = () => {
     setEditMode(false);
     setEditProductId(null);
     setFormData({ 
         name: '', 
-        category: 'Bio Fertilizer', 
+        category: 'Humic Acid', // 👈 Inga mathunga
         mrp: '',
         price: '', 
         stock: '', 
@@ -162,12 +162,12 @@ const fetchData = async () => {
     setShowAddModal(true);
 };
 
-   const openEditModal = (product) => {
+const openEditModal = (product) => {
     setEditMode(true);
     setEditProductId(product._id);
     setFormData({
         name: product.name,
-        category: product.category || 'Bio Fertilizer',
+        category: product.category || 'Humic Acid', 
         mrp: product.mrp || '',
         price: product.price,
         stock: product.stock,
