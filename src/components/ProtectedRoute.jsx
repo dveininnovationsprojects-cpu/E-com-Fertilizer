@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import toast from 'react-hot-toast'; // 👈 1. Idhai mela import pannunga
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
    
@@ -12,12 +13,16 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     try {
         const userData = JSON.parse(userStr);
         
-        // FIX: Extracting role correctly based on your backend response
+        // Extracting role correctly based on your backend response
         const role = userData.role || userData.user?.role; 
 
         // If this route is strictly for admins, and the user is NOT an admin
         if (adminOnly && role !== 'admin') {
-            alert("Access Denied: Admin privileges required.");
+            // ❌ alert("Access Denied: Admin privileges required.");
+            
+            // ✅ 2. Toast-ah setTimeout kulla podanum (React render clash aagama irukka)
+            setTimeout(() => toast.error("Access Denied: Admin privileges required."), 10);
+            
             return <Navigate to="/" replace />; // Send normal users to home
         }
 

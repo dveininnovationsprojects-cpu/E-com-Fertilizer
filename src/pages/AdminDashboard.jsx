@@ -36,7 +36,7 @@ const [newUpiId, setNewUpiId] = useState(adminUser.upiId || "");
 const [formData, setFormData] = useState({
     name: '', 
     category: 'Bio Fertilizer', 
-    mrp: '',
+    mrp: '',   // 👈 Idhu empty string-ah irukanum
     price: '', 
     stock: '', 
     description: ''
@@ -182,14 +182,21 @@ const fetchData = async () => {
     setImages(newImages);
 };
 
-    const handleProductSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        const data = new FormData();
-        Object.keys(formData).forEach(key => data.append(key, formData[key]));
+const handleProductSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    // 🟢 Puthusa Add panna Line: Make sure MRP is sent
+    const submitData = { ...formData };
+    if (!submitData.mrp) {
+        submitData.mrp = 0; // Fallback
+    }
 
-        try {
-            if (editMode) {
+    const data = new FormData();
+    Object.keys(submitData).forEach(key => data.append(key, submitData[key]));
+
+    try {
+        if (editMode) {
     // Edit pannum pothu images iruntha, loop panni 'images' key-la append pannunga
     if (images.length > 0) {
         images.forEach(img => data.append('images', img));
