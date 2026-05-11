@@ -232,19 +232,22 @@ const handleLogout = () => {
                                     <div className="flex items-center gap-3"><i className="fa-solid fa-user-gear text-[#79A206]"></i> My Account</div>
                                     <i className={`fa-solid fa-angle-down text-xs transition-transform ${isAccountOpen ? 'rotate-180' : ''}`}></i>
                                 </div>
-                                {isAccountOpen && (
+{isAccountOpen && (
     <ul className="pl-8 mt-4 space-y-4 text-sm font-semibold text-gray-500">
         {!isLoggedIn ? (
             <>
                 <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
                 <li><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
-                {/* Profile button same grey style-la (No Icon) */}
-                <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
+                {/* ❌ Inga irundha Profile link-ah remove panniyachu */}
             </>
         ) : (
             <>
+                {/* 🟢 Login aagi irundha mattum thaan Profile kaattum */}
                 <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
-                <li className="text-red-500 cursor-pointer" onClick={handleLogout}>Logout</li>
+                <li className="text-red-500 cursor-pointer" onClick={() => {
+                    setIsMenuOpen(false); 
+                    handleLogout();
+                }}>Logout</li>
             </>
         )}
     </ul>

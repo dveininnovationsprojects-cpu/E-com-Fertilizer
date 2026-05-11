@@ -482,7 +482,7 @@ const confirmLogout = async () => {
     
     <div className="pwd-field">
         <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Street / Area</label>
-        <input type="text" name="street" value={addressForm.street} onChange={handleAddressChange} placeholder="Eg: Kaliamman Kovil Street, Karapakkam" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
+        <input type="text" name="street" value={addressForm.street} onChange={handleAddressChange} placeholder="Eg: First Street" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
     </div>
     
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>

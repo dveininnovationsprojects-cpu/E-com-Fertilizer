@@ -856,9 +856,7 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                                                 </label>
                                             </div>
                                             
-                                            <div style={{fontSize: '13px', color: theme.subText, marginBottom: '8px'}}>
-                                                WhatsApp Update: <span style={{fontWeight: '600'}}>{o.whatsappSent ? 'Sent' : 'Pending'}</span>
-                                            </div>
+                                           
                                             
                                             {/* ORDER ITEMS LIST WITH PRODUCT NAME FIXED */}
                                             <div style={{ backgroundColor: '#f4f7f0', padding: '12px', borderRadius: '8px', margin: '12px 0', maxHeight: '120px', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
@@ -959,23 +957,42 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                         </tr>
                     </thead>
                     <tbody>
-                        {currentCustomers.length > 0 ? (
-                            currentCustomers.map(c => (
-                                <tr key={c._id}>
-                                    <td style={{...s.td, fontWeight: '500'}}>{c.name}</td>
-                                    <td style={{...s.td, color: theme.subText}}>{c.email}</td>
-                                    <td style={{...s.td, color: theme.subText}}>{c.phone || 'Not Provided'}</td>
-                                    <td style={{...s.td, color: theme.subText}}>{c.address || 'Not Provided'}</td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="4" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>
-                                    No customers found or API loading issue.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
+                       {currentCustomers.length > 0 ? (
+        currentCustomers.map(c => {
+            // 🟢 PUDHU LOGIC: Thani thani address fields-ah onna sekkurom
+            const fullAddress = [
+                c.buildingNo,
+                c.street,
+                c.district,
+                c.city,
+                c.state,
+                c.country,
+                c.pinCode
+            ].filter(Boolean).join(', ');
+
+            // Pudhu format illana pazhaiya address-ah kaattuvom, adhuvum illana 'Not Provided'
+            const displayAddress = fullAddress || c.address || 'Not Provided';
+
+            return (
+                <tr key={c._id}>
+                    <td style={{...s.td, fontWeight: '500'}}>{c.name}</td>
+                    <td style={{...s.td, color: theme.subText}}>{c.email}</td>
+                    <td style={{...s.td, color: theme.subText}}>{c.phone || 'Not Provided'}</td>
+                    {/* 🟢 Address column update aagiduchu */}
+                    <td style={{...s.td, color: theme.subText, lineHeight: '1.5', maxWidth: '300px'}}>
+                        {displayAddress}
+                    </td>
+                </tr>
+            );
+        })
+    ) : (
+        <tr>
+            <td colSpan="4" style={{textAlign: 'center', padding: '40px', color: theme.subText}}>
+                No customers found or API loading issue.
+            </td>
+        </tr>
+    )}
+</tbody>
                 </table>
             </div>
             {renderPagination(totalCustomerPages)}
