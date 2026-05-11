@@ -24,9 +24,14 @@ const Profile = () => {
     name: "", username: "", email: "", phone: "", address: "", gender: "", _id: "",
   });
 
-  // State specifically for the Manage Address Tab
-  const [addressForm, setAddressForm] = useState({
-    line1: "", line2: "", city: "", area: "", country: "India", pinCode: ""
+const [addressForm, setAddressForm] = useState({
+    buildingNo: "", 
+    street: "", 
+    city: "", 
+    district: "", 
+    state: "", 
+    country: "India", 
+    pinCode: ""
   });
    // Catch state from navigation (e.g., from Cart to Orders)
   useEffect(() => {
@@ -45,42 +50,37 @@ const Profile = () => {
   }, [activeTab]);
  
 
-  // Fetch fresh profile data
 const fetchProfile = async () => {
     try {
-        // 1. Fresh data backend-la irundhu fetch pandrom
         const res = await API.get('/auth/profile');
         const fetchedUser = res.data.user || res.data;
 
-        // 🟢 SAFETY CHECK: Admin account User Profile page-ah paaka koodathu
         if (fetchedUser.role === 'admin') {
             toast.error("Admin cannot access user profile portal!");
-            return navigate('/admin'); // Admin-ah direct-ah dashboard-ku anuppidalam
+            return navigate('/admin');
         }
 
-        // 2. State and LocalStorage update pandrom
-        setUser(fetchedUser); // previous state (prev) kooda merge panna venam, fresh-ah backend data-ve vachukalam
+        setUser(fetchedUser); 
         localStorage.setItem("user", JSON.stringify(fetchedUser));
 
-        // 3. Address form update logic
-        if (fetchedUser.address) {
-            setAddressForm(prev => ({
-                ...prev,
-                line1: fetchedUser.address
-            }));
-        }
+        // 🟢 Direct Mapping ONLY (Pazhaiya if(fetchedUser.address) split logic-ah thookitom!)
+        setAddressForm({
+            buildingNo: fetchedUser.buildingNo || "",
+            street: fetchedUser.street || "",
+            city: fetchedUser.city || "",
+            district: fetchedUser.district || "",
+            state: fetchedUser.state || "",
+            country: fetchedUser.country || "India",
+            pinCode: fetchedUser.pinCode || ""
+        });
         
     } catch (error) {
         console.error("Failed to fetch fresh profile data", error);
-        
-        // 4. Session expired-na localStorage-ah thookittu login-ku thalliduvom
         if (error.response?.status === 401) {
             localStorage.removeItem("user");
             navigate('/login');
             return;
         }
-
-        // Catch block-la fallback data edukka venam (Security reason)
         const storedUser = JSON.parse(localStorage.getItem("user"));
         if (storedUser && storedUser.role !== 'admin') {
             setUser(storedUser);
@@ -157,27 +157,38 @@ const fetchProfile = async () => {
       toast.error(err.response?.data?.message || "Update failed");
     }
   };
+const handleAddressSave = async () => {
+    if (!addressForm.buildingNo || !addressForm.city || !addressForm.pinCode) {
+        return toast.error("Please fill the mandatory address fields (*).");
+    }
 
-  const handleAddressSave = async () => {
-    if(!addressForm.line1 || !addressForm.city || !addressForm.pinCode) {
-      return toast.error("Please fill the mandatory address fields (*).");
-    }
-    const combinedAddress = `${addressForm.line1}, ${addressForm.line2 ? addressForm.line2 + ', ' : ''}${addressForm.area ? addressForm.area + ', ' : ''}${addressForm.city}, ${addressForm.country} - ${addressForm.pinCode}`;
-    
     try {
-      const payload = { ...user, address: combinedAddress };
-      const res = await API.put(`/auth/profile`, payload);
-      
-      if (res.data.success || res.status === 200) {
-        const updatedUser = res.data.user || res.data;
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setUser(updatedUser);
-        toast.success("Address saved successfully!");
-      }
+        // Direct aah full object-ah backend-kku anuprom
+        const payload = { ...user, ...addressForm }; 
+        const res = await API.put(`/auth/profile`, payload);
+        
+        if (res.data) {
+            const updatedUser = res.data.user || res.data;
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            setUser(updatedUser);
+            
+            // 🟢 Save aanathukku appramum andha box-kulla values apdiye ukanthu irukka idhu udhavum
+            setAddressForm({
+                buildingNo: updatedUser.buildingNo || "",
+                street: updatedUser.street || "",
+                city: updatedUser.city || "",
+                district: updatedUser.district || "",
+                state: updatedUser.state || "",
+                country: updatedUser.country || "India",
+                pinCode: updatedUser.pinCode || ""
+            });
+
+            toast.success("Address updated successfully!");
+        }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to save address");
+        toast.error(err.response?.data?.message || "Failed to save address");
     }
-  };
+};
 
   const handlePasswordUpdate = async () => {
     if (!passwords.newPwd) return toast.error("Please enter a new password");
@@ -298,7 +309,17 @@ const confirmLogout = async () => {
               <input name="phone" value={user.phone || ""} onChange={handleChange} disabled={!editMode} placeholder="Phone Number" />
               
               <label>Current Saved Address</label>
-              <input name="address" value={user.address || ""} onChange={handleChange} disabled={!editMode} placeholder="Your full address" />
+              <input 
+    name="address" 
+    value={
+        user.buildingNo || user.city 
+        ? [user.buildingNo, user.street, user.area, user.city, user.district, user.state, user.country, user.pinCode].filter(Boolean).join(', ')
+        : user.address || ""
+    } 
+    onChange={handleChange} 
+    disabled={!editMode} 
+    placeholder="Your full address" 
+/>
               
               <label>Gender</label>
               <select name="gender" value={user.gender || ""} onChange={handleChange} disabled={!editMode}
@@ -424,9 +445,9 @@ const confirmLogout = async () => {
             <h3>Support</h3>
             <p>Need help? Reach us at:</p>
             <div className="support-card">
-              <p><i className="fa-solid fa-phone"></i> +91 98765 43210</p>
-              <p><i className="fa-solid fa-envelope"></i> support@saralx.com</p>
-              <p><i className="fa-solid fa-clock"></i> Mon - Sat, 9AM - 6PM</p>
+              <p><i className="fa-solid fa-phone"></i> +91 99448 48617</p>
+              <p><i className="fa-solid fa-envelope"></i> saraswathytraders1234@gmail.com</p>
+             
             </div>
             
             <div style={{marginTop: '25px', backgroundColor: '#fff', padding: '25px', borderRadius: '12px', border: '1px solid #eaeaec', boxShadow: '0 2px 10px rgba(0,0,0,0.03)'}}>
@@ -451,44 +472,50 @@ const confirmLogout = async () => {
             <h3>Manage Address</h3>
             <p style={{color: '#666', fontSize: '14px', marginBottom: '20px'}}>Update your primary delivery address below.</p>
             
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "600px", backgroundColor: '#fff', padding: '25px', borderRadius: '12px', border: '1px solid #eaeaec' }}>
-              
-              <div className="pwd-field">
-                  <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Address Line 1 *</label>
-                  <input type="text" name="line1" value={addressForm.line1} onChange={handleAddressChange} placeholder="House No, Street Name" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
-              </div>
-              
-              <div className="pwd-field">
-                  <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Address Line 2 <span style={{ color: "#aaa", fontWeight: 400 }}>(Optional)</span></label>
-                  <input type="text" name="line2" value={addressForm.line2} onChange={handleAddressChange} placeholder="Apartment, Area, Landmark" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
-              </div>
-              
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <div className="pwd-field">
-                    <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>City *</label>
-                    <input type="text" name="city" value={addressForm.city} onChange={handleAddressChange} placeholder="City" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
-                </div>
-                <div className="pwd-field">
-                    <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Area / District</label>
-                    <input type="text" name="area" value={addressForm.area} onChange={handleAddressChange} placeholder="Area" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
-                </div>
-              </div>
-              
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <div className="pwd-field">
-                    <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Country *</label>
-                    <input type="text" name="country" value={addressForm.country} onChange={handleAddressChange} placeholder="Country" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
-                </div>
-                <div className="pwd-field">
-                    <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Pin Code *</label>
-                    <input type="text" name="pinCode" value={addressForm.pinCode} onChange={handleAddressChange} placeholder="Pin Code" maxLength={6} style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
-                </div>
-              </div>
-              
-              <button className="pwd-btn" onClick={handleAddressSave} style={{ marginTop: "10px", width: '100%', padding: '14px', backgroundColor: '#9cc43c', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
-                  Save Address
-              </button>
-            </div>
+           {/* Manage Address UI */}
+<div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "600px", backgroundColor: '#fff', padding: '25px', borderRadius: '12px', border: '1px solid #eaeaec' }}>
+    
+    <div className="pwd-field">
+        <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Building No / Flat *</label>
+        <input type="text" name="buildingNo" value={addressForm.buildingNo} onChange={handleAddressChange} placeholder="Eg: Flat 2A, Saravana Castle" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
+    </div>
+    
+    <div className="pwd-field">
+        <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Street / Area</label>
+        <input type="text" name="street" value={addressForm.street} onChange={handleAddressChange} placeholder="Eg: Kaliamman Kovil Street, Karapakkam" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
+    </div>
+    
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="pwd-field">
+            <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>City *</label>
+            <input type="text" name="city" value={addressForm.city} onChange={handleAddressChange} placeholder="City" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
+        </div>
+        <div className="pwd-field">
+            <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>District</label>
+            <input type="text" name="district" value={addressForm.district} onChange={handleAddressChange} placeholder="District" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
+        </div>
+    </div>
+    
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="pwd-field">
+            <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>State</label>
+            <input type="text" name="state" value={addressForm.state} onChange={handleAddressChange} placeholder="State" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
+        </div>
+        <div className="pwd-field">
+            <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Pin Code *</label>
+            <input type="text" name="pinCode" value={addressForm.pinCode} onChange={handleAddressChange} placeholder="Pin Code" maxLength={6} style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box'}}/>
+        </div>
+    </div>
+
+    <div className="pwd-field">
+        <label style={{display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '600'}}>Country</label>
+        <input type="text" name="country" value={addressForm.country} disabled placeholder="India" style={{width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', backgroundColor: '#f5f5f5'}}/>
+    </div>
+    
+    <button className="pwd-btn" onClick={handleAddressSave} style={{ marginTop: "10px", width: '100%', padding: '14px', backgroundColor: '#9cc43c', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
+        Save Address
+    </button>
+</div>
           </div>
         )}
 

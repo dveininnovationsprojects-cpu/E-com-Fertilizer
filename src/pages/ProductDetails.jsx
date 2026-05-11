@@ -12,6 +12,7 @@ const ProductDetails = () => {
     const [mainImage, setMainImage] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [isDescExpanded, setIsDescExpanded] = useState(false);
 
     
     const { addToCart } = useContext(CartContext);
@@ -92,77 +93,88 @@ const addToCartHandler = async (shouldNavigate = false) => {
 </div>
                 </div>
 
-                <div className="flex flex-col space-y-6">
-                    <div>
-                        <span className="bg-[#79A206]/10 text-[#79A206] px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest">
-                            {product.category}
-                        </span>
-                        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#333] mt-4 leading-tight">
-                            {product.name}
-                        </h1>
-                        
-                    </div>
+              <div className="flex flex-col space-y-6">
+    {/* 1. Category & Title */}
+    <div>
+        <span className="bg-[#79A206]/10 text-[#79A206] px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest">
+            {product.category}
+        </span>
+        <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#333] mt-4 leading-tight">
+            {product.name}
+        </h1>
+    </div>
 
-                    <div className="border-y border-gray-100 py-6">
-                       <div className="flex flex-col gap-1">
-    <span className="text-gray-400 text-lg font-bold uppercase tracking-wider line-through">
-        MRP: ₹{product.mrp}.00
-    </span>
-    <span className="text-4xl md:text-5xl font-black text-[#79A206]">
-        Offer: ₹{product.price}.00
-    </span>
+    {/* 2. Price Section */}
+    <div className="border-y border-gray-100 py-6">
+        <div className="flex flex-col gap-1">
+            <span className="text-gray-400 text-lg font-bold uppercase tracking-wider line-through">
+                MRP: ₹{product.mrp}.00
+            </span>
+            <span className="text-4xl md:text-5xl font-black text-[#79A206]">
+                Offer: ₹{product.price}.00
+            </span>
+        </div>
+    </div>
+
+    {/* 3. Stock & Quantity (Mela kondu vandhachu) */}
+    <div className="space-y-6">
+        <div className="flex items-center gap-10">
+            <div className="flex items-center border border-gray-200 rounded-full px-4 py-2 w-max shadow-sm">
+                <button onClick={() => quantity > 1 && setQuantity(quantity - 1)} className="w-8 h-8 flex items-center justify-center hover:text-[#79A206] transition-colors">
+                    <i className="fa-solid fa-minus text-xs"></i>
+                </button>
+                <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 flex items-center justify-center hover:text-[#79A206] transition-colors">
+                    <i className="fa-solid fa-plus text-xs"></i>
+                </button>
+            </div>
+            
+            <span className={`font-bold text-sm ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                <i className={`fa-solid ${product.stock > 0 ? 'fa-check-circle' : 'fa-times-circle'} mr-2`}></i>
+                {product.stock > 0 ? `${product.stock} In Stock` : 'Out of Stock'}
+            </span>
+        </div>
+
+        {/* 4. Action Buttons (Mela kondu vandhachu) */}
+        <div className="flex flex-col sm:flex-row gap-4">
+            <button onClick={() => addToCartHandler(false)} className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20">
+                <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
+            </button>
+            <button onClick={() => addToCartHandler(true)} className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all">
+                Buy Now
+            </button>
+        </div>
+    </div>
+
+    {/* 5. Description (Keela kondu vandhachu with "Read More" logic) */}
+    <div className="mt-6 pt-6 border-t border-gray-100">
+        <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 mb-3">Product Description</h3>
+        <div 
+            className={`text-gray-500 leading-relaxed text-md relative transition-all duration-300 ${!isDescExpanded ? 'max-h-32 overflow-hidden' : 'max-h-96 overflow-y-auto pr-2'}`}
+        >
+            <p className="whitespace-pre-line">{product.description}</p>
+            
+            {/* Fade effect at the bottom when collapsed */}
+            {!isDescExpanded && product.description.length > 200 && (
+                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+            )}
+        </div>
+        
+        {/* Toggle Button for Read More / Less */}
+        {product.description.length > 200 && (
+            <button 
+                onClick={() => setIsDescExpanded(!isDescExpanded)}
+                className="mt-2 text-[#79A206] font-bold text-sm hover:underline"
+            >
+                {isDescExpanded ? 'Read Less' : 'Read More...'}
+            </button>
+        )}
+    </div>
+
 </div>
-                        <p className="text-gray-500 mt-4 leading-relaxed text-lg">
-                            {product.description}
-                        </p>
-                    </div>
-
-                    {/* Stock & Quantity */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-10">
-                            <div className="flex items-center border border-gray-200 rounded-full px-4 py-2 w-max shadow-sm">
-                                <button 
-                                    onClick={() => quantity > 1 && setQuantity(quantity - 1)}
-                                    className="w-8 h-8 flex items-center justify-center hover:text-[#79A206] transition-colors"
-                                >
-                                    <i className="fa-solid fa-minus text-xs"></i>
-                                </button>
-                                <span className="w-12 text-center font-bold text-lg">{quantity}</span>
-                                <button 
-                                    onClick={() => setQuantity(quantity + 1)}
-                                    className="w-8 h-8 flex items-center justify-center hover:text-[#79A206] transition-colors"
-                                >
-                                    <i className="fa-solid fa-plus text-xs"></i>
-                                </button>
-                            </div>
-                            
-                            <span className={`font-bold text-sm ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                <i className={`fa-solid ${product.stock > 0 ? 'fa-check-circle' : 'fa-times-circle'} mr-2`}></i>
-                                {product.stock > 0 ? `${product.stock} In Stock` : 'Out of Stock'}
-                            </span>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-4">
-    {/* Add to Cart - No alert, no popup, silent add */}
-    <button 
-        onClick={() => addToCartHandler(false)}
-        className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20"
-    >
-        <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
-    </button>
-
-    {/* Buy Now - Add to cart and then Navigate to Cart page */}
-    <button 
-        onClick={() => addToCartHandler(true)}
-        className="flex-1 bg-[#333] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-black transition-all"
-    >
-        Buy Now
-    </button>
-</div>
-                    </div>
                 </div>
             </div>
-        </div>
+        
     );
 };
 

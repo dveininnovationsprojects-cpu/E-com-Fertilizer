@@ -40,22 +40,41 @@ const Cart = () => {
 
         fetchAdminSettings();
     }, []);
-    const handleProceedToPayment = () => {
+const handleProceedToPayment = () => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
 
+    // 1st Check: Login panni irukkangala?
     if (!storedUser) {
         toast.error("Please login to proceed with the payment!", {
             icon: '⚠️',
-            style: {
-                borderRadius: '10px',
-                background: '#333',
-                color: '#fff',
-            },
+            style: { borderRadius: '10px', background: '#333', color: '#fff' },
         });
         return; 
     }
 
-   
+    // 2nd Check: Address irukkaa nu pakkurom
+    // Ippo namma thani thani fields-ah check pandrom
+    const userData = storedUser?.user || storedUser;
+    const hasAddress = userData?.city && userData?.pinCode && userData?.buildingNo;
+
+    // Palaiya string address fallback kooda vechukalam
+    const hasOldAddress = userData?.address && userData?.address !== "Address not provided";
+
+    if (!hasAddress && !hasOldAddress) {
+        toast.error("Please add your delivery address in the Profile screen to proceed!", {
+            icon: '📍',
+            duration: 4000,
+            style: { borderRadius: '10px', background: '#e74c3c', color: '#fff', fontWeight: 'bold' },
+        });
+        
+        // Profile-ku kootittu poiralam
+        setTimeout(() => {
+            navigate('/profile', { state: { activeTab: 'address' } });
+        }, 1500); 
+        return;
+    }
+
+    // Ellam pakka na payment section kaattanum
     setShowPayment(true);
 };
     
@@ -82,10 +101,25 @@ const handleConfirmAndWhatsApp = async () => {
 }
 
     // Ellam iruntha mattum Loading start pannanum
-    setLoading(true);
+   setLoading(true);
 
     try {
-        const userAddress = storedUser?.address || storedUser?.user?.address || "Address not provided";
+        const userData = storedUser?.user || storedUser;
+
+        // Backend-la irundhu varra thani thani fields-ah onna sekurom
+        const formattedAddress = [
+            userData?.buildingNo,
+            userData?.street,
+            userData?.area,
+            userData?.city,
+            userData?.district,
+            userData?.state,
+            userData?.country,
+            userData?.pinCode
+        ].filter(Boolean).join(', ');
+
+        // Fallback aah palaiya address vachukalam
+        const userAddress = formattedAddress || userData?.address || "Address not provided";
 
         const formData = new FormData();
         formData.append('orderItems', JSON.stringify(cart.map(item => ({ 
@@ -95,7 +129,7 @@ const handleConfirmAndWhatsApp = async () => {
         }))));
         formData.append('totalAmount', totalAmount);
         formData.append('shippingAddress', userAddress);
-        formData.append('paymentScreenshot', paymentFile); 
+        formData.append('paymentScreenshot', paymentFile);
 
         // 1. Create Order (POST request)
         const res = await API.post('/orders', formData, {

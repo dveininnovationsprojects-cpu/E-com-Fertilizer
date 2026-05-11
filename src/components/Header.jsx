@@ -12,12 +12,25 @@ const Header = () => {
     const [searchResults, setSearchResults] = useState([]);
 
     // Temporary Auth State 
-    const [isLoggedIn, setIsLoggedIn] = useState(false); 
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
 
     // PUDHUSA ADD PANNATHU: Cart details edukkurom
     const { cart } = useContext(CartContext);
     const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+    useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+        setIsLoggedIn(true);
+    } else {
+        setIsLoggedIn(false);
+    }
+}, []);
+const handleLogout = () => {
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+    navigate('/login');
+};
 
   const handleCategoryChange = (e) => {
     const category = e.target.value;
@@ -152,31 +165,36 @@ const Header = () => {
     </div>
                         
                         {showProfileMenu && (
-                            <div className="absolute right-0 mt-4 w-48 bg-white shadow-2xl rounded-lg py-2 border border-gray-100 animate-fadeIn overflow-hidden">
-                                {!isLoggedIn ? (
-                                    <>
-                                        <Link to="/login" className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
-                                            <i className="fa-solid fa-right-to-bracket mr-3 text-[#79A206]"></i> Login
-                                        </Link>
-                                        <Link to="/register" className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
-                                            <i className="fa-solid fa-user-plus mr-3 text-[#79A206]"></i> Register
-                                        </Link>
-                                        <Link to="/profile" className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors border-t border-gray-50">
-            <i className="fa-solid fa-user-gear mr-3 text-[#79A206]"></i> My Profile
-        </Link>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Link to="/profile" className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
-                                            <i className="fa-solid fa-id-badge mr-3 text-[#79A206]"></i> My Profile
-                                        </Link>
-                                        <button className="w-full flex items-center px-4 py-3 hover:bg-red-50 text-sm font-semibold text-red-600 transition-colors border-t">
-                                            <i className="fa-solid fa-power-off mr-3"></i> Logout
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-                        )}
+    <div className="absolute right-0 mt-4 w-48 bg-white shadow-2xl rounded-lg py-2 border border-gray-100 animate-fadeIn overflow-hidden">
+        {!isLoggedIn ? (
+            <>
+                {/* 🟢 User Login aagalana idhu mattum thaan theriyum */}
+                <Link to="/login" onClick={() => setShowProfileMenu(false)} className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
+                    <i className="fa-solid fa-right-to-bracket mr-3 text-[#79A206]"></i> Login
+                </Link>
+                <Link to="/register" onClick={() => setShowProfileMenu(false)} className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
+                    <i className="fa-solid fa-user-plus mr-3 text-[#79A206]"></i> Register
+                </Link>
+            </>
+        ) : (
+            <>
+                {/* 🟢 User Login aagi irundha idhu mattum thaan theriyum */}
+                <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
+                    <i className="fa-solid fa-id-badge mr-3 text-[#79A206]"></i> My Profile
+                </Link>
+                <button 
+                    onClick={() => {
+                        setShowProfileMenu(false);
+                        handleLogout(); // Logout logic-ah call pannum
+                    }} 
+                    className="w-full flex items-center px-4 py-3 hover:bg-red-50 text-sm font-semibold text-red-600 transition-colors border-t border-gray-100"
+                >
+                    <i className="fa-solid fa-power-off mr-3"></i> Logout
+                </button>
+            </>
+        )}
+    </div>
+)}
                     </div>
                 </div>
             </div>
