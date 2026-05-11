@@ -74,10 +74,7 @@ const Header = () => {
     <option value="Neem Oil">Neem Oil</option>
     <option value="Organic Granules">Organic Granules</option>
     <option value="Fish Oil">Fish Oil</option>
-    <option value="Bio Fertilizer">Bio Fertilizer</option>
-    <option value="Organic Manure">Organic Manure</option>
-    <option value="Nursery Plants">Nursery Plants</option>
-    <option value="Quality Seeds">Quality Seeds</option>
+
 </select>
     
     <input 

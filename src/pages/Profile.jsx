@@ -45,22 +45,47 @@ const Profile = () => {
  
 
   // Fetch fresh profile data
-  const fetchProfile = async () => {
+const fetchProfile = async () => {
     try {
-      const res = await API.get('/auth/profile');
-      const fetchedUser = res.data.user || res.data;
-      setUser((prev) => ({ ...prev, ...fetchedUser }));
-      localStorage.setItem("user", JSON.stringify(fetchedUser));
-      
-      if(fetchedUser.address) {
-        setAddressForm(prev => ({...prev, line1: fetchedUser.address}));
-      }
+        // 1. Fresh data backend-la irundhu fetch pandrom
+        const res = await API.get('/auth/profile');
+        const fetchedUser = res.data.user || res.data;
+
+        // 🟢 SAFETY CHECK: Admin account User Profile page-ah paaka koodathu
+        if (fetchedUser.role === 'admin') {
+            toast.error("Admin cannot access user profile portal!");
+            return navigate('/admin'); // Admin-ah direct-ah dashboard-ku anuppidalam
+        }
+
+        // 2. State and LocalStorage update pandrom
+        setUser(fetchedUser); // previous state (prev) kooda merge panna venam, fresh-ah backend data-ve vachukalam
+        localStorage.setItem("user", JSON.stringify(fetchedUser));
+
+        // 3. Address form update logic
+        if (fetchedUser.address) {
+            setAddressForm(prev => ({
+                ...prev,
+                line1: fetchedUser.address
+            }));
+        }
+        
     } catch (error) {
-      console.error("Failed to fetch fresh profile data", error);
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser) setUser((prev) => ({ ...prev, ...storedUser }));
+        console.error("Failed to fetch fresh profile data", error);
+        
+        // 4. Session expired-na localStorage-ah thookittu login-ku thalliduvom
+        if (error.response?.status === 401) {
+            localStorage.removeItem("user");
+            navigate('/login');
+            return;
+        }
+
+        // Catch block-la fallback data edukka venam (Security reason)
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (storedUser && storedUser.role !== 'admin') {
+            setUser(storedUser);
+        }
     }
-  };
+};
 
   // Fetch all products to map IDs to Images/Names
   const fetchAllProducts = async () => {

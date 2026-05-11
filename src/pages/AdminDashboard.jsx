@@ -315,17 +315,17 @@ const handleProfileUpdate = async (e) => {
 };
 
     const handleLogoutClick = () => setShowLogoutModal(true); 
+const confirmLogout = async () => {
+    try {
+        await API.post('auth/logout');
+        localStorage.removeItem('user');
 
-    const confirmLogout = async () => {
-        try {
-            await API.post('auth/logout'); 
-            localStorage.removeItem('user');
-            window.location.href = '/'; 
-        } catch (err) {
-            localStorage.removeItem('user');
-            window.location.href = '/';
-        }
-    };
+        window.location.href = '/login'; 
+    } catch (err) {
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+};
 const handleQRUpdate = async (e) => {
     e.preventDefault();
     const data = new FormData();
@@ -615,11 +615,7 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                             />
                             <select style={s.filterSelect} value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
     <option value="All">All Categories</option>
-    <option value="Bio Fertilizer">Bio Fertilizer</option>
-    <option value="Organic Manure">Organic Manure</option>
-    <option value="Nursery Plants">Nursery Plants</option>
-    <option value="Quality Seeds">Quality Seeds</option>
-    {/* 🟢 PUTHUSA ADD PANNATHU */}
+
     <option value="Humic Acid">Humic Acid</option>
     <option value="Seaweed">Seaweed</option>
     <option value="Potassium Humate">Potassium Humate</option>
