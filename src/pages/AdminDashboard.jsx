@@ -36,6 +36,7 @@ const [newUpiId, setNewUpiId] = useState(adminUser.upiId || "");
 const [formData, setFormData] = useState({
     name: '', 
     category: 'Bio Fertilizer', 
+    mrp: '',
     price: '', 
     stock: '', 
     description: ''
@@ -152,6 +153,7 @@ const fetchData = async () => {
     setFormData({ 
         name: '', 
         category: 'Bio Fertilizer', 
+        mrp: '',
         price: '', 
         stock: '', 
         description: '' 
@@ -166,6 +168,7 @@ const fetchData = async () => {
     setFormData({
         name: product.name,
         category: product.category || 'Bio Fertilizer',
+        mrp: product.mrp || '',
         price: product.price,
         stock: product.stock,
         description: product.description || ''
@@ -492,7 +495,27 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
     // --- 5. RENDER COMPONENTS ---
     return (
         <div style={s.container}>
-            <Toaster position="top-center" reverseOrder={false} />
+            <Toaster 
+    position="top-center" 
+    reverseOrder={false} 
+    toastOptions={{
+        // Default options for all toasts
+        duration: 2500, // 2.5 seconds-la auto-vah hide aagidum
+        style: {
+            background: '#fff',
+            color: '#333',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            borderRadius: '8px',
+            padding: '12px 16px',
+        },
+        success: {
+            duration: 2500, // Success messages (Green)
+        },
+        error: {
+            duration: 3500, // Error messages konjam extra time (Red)
+        }
+    }} 
+/>
             
             {/* MOBILE TOP BAR */}
             <div style={s.mobileHeader}>
@@ -635,7 +658,8 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                                             <th style={s.th}>Product</th>
                                             <th style={s.th}>Category</th>
                                             <th style={s.th}>Stock</th>
-                                            <th style={s.th}>Price</th>
+                                            <th style={s.th}>MRP</th>
+                                            <th style={s.th}>Offer Price</th>
                                             <th style={s.th}>Product Details</th>
                                             <th style={s.th}>Action</th>
                                         </tr>
@@ -651,6 +675,14 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                                                 </td>
                                                 <td style={{...s.td, color: theme.subText}}>{p.category}</td>
                                                 <td style={s.td}>{p.stock}</td>
+                                                <td style={s.td}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        <div style={{ fontSize: '13px', color: '#888' }}>
+           ₹{p.mrp}
+        </div>
+        
+    </div>
+</td>
                                                 <td style={{...s.td, fontWeight: '500'}}>₹{p.price.toLocaleString('en-IN')}</td>
                                                 <td style={{...s.td, color: theme.subText, maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}} title={p.description}>
                                                     {p.description || 'N/A'}
@@ -694,9 +726,15 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
 
                                         <div style={{display: 'flex', gap: '15px'}}>
                                             <div style={{...s.formGroup, flex: 1}}>
-                                                <label style={s.label}>Price (₹)</label>
-                                                <input type="number" style={s.input} placeholder="0.00" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required />
-                                            </div>
+        <label style={s.label}>MRP (Original Price ₹)</label>
+        <input type="number" style={s.input} placeholder="500" value={formData.mrp} onChange={e => setFormData({...formData, mrp: e.target.value})} required />
+    </div>
+
+    {/* Offer Price Input (Selling Price) */}
+    <div style={{...s.formGroup, flex: 1}}>
+        <label style={s.label}>Offer Price (Selling ₹)</label>
+        <input type="number" style={s.input} placeholder="450" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required />
+    </div>
                                             <div style={{...s.formGroup, flex: 1}}>
                                                 <label style={s.label}>Stock Quantity</label>
                                                 <input type="number" style={s.input} placeholder="Qty" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} required />

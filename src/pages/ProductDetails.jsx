@@ -104,10 +104,14 @@ const addToCartHandler = async (shouldNavigate = false) => {
                     </div>
 
                     <div className="border-y border-gray-100 py-6">
-                        <div className="flex items-baseline gap-4">
-                            <span className="text-4xl font-black text-[#79A206]">₹{product.price}.00</span>
-                            
-                        </div>
+                       <div className="flex flex-col gap-1">
+    <span className="text-gray-400 text-lg font-bold uppercase tracking-wider line-through">
+        MRP: ₹{product.mrp}.00
+    </span>
+    <span className="text-4xl md:text-5xl font-black text-[#79A206]">
+        Offer: ₹{product.price}.00
+    </span>
+</div>
                         <p className="text-gray-500 mt-4 leading-relaxed text-lg">
                             {product.description}
                         </p>

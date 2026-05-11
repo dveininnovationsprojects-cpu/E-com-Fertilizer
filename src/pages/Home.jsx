@@ -270,7 +270,14 @@ useEffect(() => {
                                 <div className="p-6 text-center">
                                     <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">{p.category}</p>
                                     <h3 className="text-lg font-semibold text-[#333] group-hover:text-[#79A206] transition-colors line-clamp-1">{p.name}</h3>
-                                    <p className="text-[#79A206] font-black text-2xl mt-2">₹{p.price}.00</p>
+                                   <div className="mt-2 flex flex-col items-center">
+    <span className="text-gray-400 text-[11px] font-bold uppercase tracking-widest line-through mb-1">
+        MRP: ₹{p.mrp}.00
+    </span>
+    <span className="text-[#79A206] font-black text-2xl">
+        Offer: ₹{p.price}.00
+    </span>
+</div>
                                     
                                     
                                 </div>

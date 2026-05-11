@@ -18,6 +18,7 @@ const Profile = () => {
   const [supportSending, setSupportSending] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [user, setUser] = useState({
     name: "", username: "", email: "", phone: "", address: "", gender: "", _id: "",
@@ -211,17 +212,20 @@ const handleSupportSend = async () => {
       setSupportSending(false);
     }
   };
+// Logout button-ah click panna modal open aagum
+const handleLogoutClick = () => setShowLogoutModal(true);
 
-  const handleLogout = async () => {
+// Modal-la 'Yes' click panna thaan actual logout aagum
+const confirmLogout = async () => {
     try {
-      await API.post("/auth/logout");
+        await API.post("/auth/logout");
     } catch (err) {
-      console.error(err);
+        console.error(err);
     } finally {
-      localStorage.removeItem("user");
-      navigate("/");
+        localStorage.removeItem("user");
+        navigate("/");
     }
-  };
+};
 
   return (
     <div className="profile-container">
@@ -256,17 +260,16 @@ const handleSupportSend = async () => {
           <li className={activeTab === "password" ? "active" : ""} onClick={() => { setActiveTab("password"); setMenuOpen(false); }}>
             <i className="fa-solid fa-lock"></i> Password Manager
           </li>
-          <li className={activeTab === "support" ? "active" : ""} onClick={() => { setActiveTab("support"); setMenuOpen(false); }}>
-            <i className="fa-solid fa-headset"></i> Support
-          </li>
-        </ul>
+<li className={activeTab === "support" ? "active" : ""} onClick={() => { setActiveTab("support"); setMenuOpen(false); }}>
+    <i className="fa-solid fa-headset"></i> Support
+  </li>
 
-        <div className="sidebar-footer">
-          <p>{user.name}</p>
-          <button onClick={handleLogout}>
-            <i className="fa-solid fa-right-from-bracket"></i> Logout
-          </button>
-        </div>
+
+{/* Mobile menu button */}
+<li className="mobile-logout-only" onClick={handleLogoutClick} style={{ color: '#e74c3c', borderTop: '1px solid #eee', marginTop: '10px' }}>
+  <i className="fa-solid fa-right-from-bracket"></i> Logout
+</li>
+</ul>
       </div>
 
       {/* CONTENT */}
@@ -517,6 +520,21 @@ const handleSupportSend = async () => {
             </div>
           </div>
         )}
+        {/* CUSTOM LOGOUT MODAL */}
+{showLogoutModal && (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1100, display: 'flex', justifyContent: 'center', alignItems: 'center', backdropFilter: 'blur(3px)' }}>
+        <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '12px', width: '90%', maxWidth: '400px', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
+            <h3 style={{fontSize: '18px', fontWeight: '600', marginBottom: '15px', color: '#333'}}>Confirm Logout</h3>
+            <p style={{fontSize: '14px', color: '#666', marginBottom: '25px', lineHeight: '1.5'}}>
+                Are you sure you want to log out of your account?
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <button onClick={() => setShowLogoutModal(false)} style={{ background: '#f1f3f0', color: '#333', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px' }}>Cancel</button>
+                <button onClick={confirmLogout} style={{ background: '#e74c3c', color: '#fff', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '14px' }}>Yes, Logout</button>
+            </div>
+        </div>
+    </div>
+)}
 
       </div>
     </div>
