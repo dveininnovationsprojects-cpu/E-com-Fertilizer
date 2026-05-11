@@ -229,7 +229,7 @@ const confirmLogout = async () => {
 
   return (
     <div className="profile-container">
-      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+     
       {menuOpen && <div className="sidebar-overlay" onClick={() => setMenuOpen(false)}></div>}
 
       {/* SIDEBAR */}

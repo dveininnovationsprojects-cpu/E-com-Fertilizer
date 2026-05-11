@@ -142,7 +142,7 @@ const Register = () => {
 
   return (
     <div style={styles.container}>
-      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+      
       <div style={styles.card}>
         <h2 style={styles.title}>Create Account 🌱</h2>
         

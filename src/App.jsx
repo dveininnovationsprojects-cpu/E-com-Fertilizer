@@ -38,26 +38,9 @@ function App() {
   return (
     <CartProvider>
     <Router>
-      <Toaster 
+<Toaster 
     position="top-center" 
-    reverseOrder={false} 
-    toastOptions={{
-        // Default options for all toasts
-        duration: 2500, // 2.5 seconds-la auto-vah hide aagidum
-        style: {
-            background: '#fff',
-            color: '#333',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            borderRadius: '8px',
-            padding: '12px 16px',
-        },
-        success: {
-            duration: 2500, // Success messages (Green)
-        },
-        error: {
-            duration: 3500, // Error messages konjam extra time (Red)
-        }
-    }} 
+    toastOptions={{ duration: 2500 }} 
 />
       <LayoutWrapper>
         <Routes>

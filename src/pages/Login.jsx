@@ -132,7 +132,7 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
-      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+
       <div style={styles.card}>
         <h2 style={styles.title}>Saral-X Login</h2>
         <form onSubmit={handleLogin} style={styles.form}>

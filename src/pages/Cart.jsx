@@ -176,7 +176,7 @@ const handleConfirmAndWhatsApp = async () => {
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-10">
-            <Toaster position="top-center" />
+            
             <h1 className="text-3xl font-bold mb-8">Checkout Process</h1>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
