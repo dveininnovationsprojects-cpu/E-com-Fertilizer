@@ -17,10 +17,8 @@ import "../App.css";
 const About = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // 6 Images Array for the Slider
   const slides = [slide1, slide2, slide3, slide4, slide5, slide6];
-
-  // Auto-slide logic (4 seconds interval)
+  
   useEffect(() => {
     const timer = setInterval((  ) => {
       setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -31,12 +29,11 @@ const About = () => {
 useEffect(() => {
     const fetchCompanyData = async () => {
         try {
-            // Localhost link-ah mothama thookiyachu
+
             const response = await API.get('/about'); 
             console.log("Company data fetched");
         } catch (error) {
-            // Backend-la innum '/about' route create pannala na error varum, 
-            // adhu prechana illa, but localhost link irukka koodathu.
+           
             console.error("Fetch Error:", error.message);
         }
     };

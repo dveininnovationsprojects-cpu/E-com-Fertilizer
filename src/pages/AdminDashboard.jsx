@@ -1099,7 +1099,7 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
 <div style={s.formGroup}>
     <label style={s.label}>Email Address</label>
     <input 
-        type="email" // <--- 'text' nu irundha 'email' nu mathunga
+        type="email" 
         style={s.input} 
         value={profileData.email} 
         onChange={e => setProfileData({...profileData, email: e.target.value})} 
@@ -1163,7 +1163,7 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
         type="file" 
         id="qr-upload"
         accept="image/*" 
-        style={{ display: 'none' }} // Itha hide panniduvom
+        style={{ display: 'none' }}
         onChange={(e) => {
             if (e.target.files[0]) {
                 setQrImage(e.target.files[0]);

@@ -3,7 +3,7 @@ import { createContext, useState, useEffect } from "react";
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  // 🟢 1. Initialize state from LocalStorage instead of an empty array
+
   const [cart, setCart] = useState(() => {
     try {
       const savedCart = localStorage.getItem("cart");
@@ -34,12 +34,12 @@ const addToCart = (product) => {
     });
 };
 
-  // Remove specific item from cart
+
   const removeFromCart = (id) => {
     setCart((prevCart) => prevCart.filter((item) => item._id !== id));
   };
 
-  // Update quantity (+ and - buttons)
+
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity < 1) {
       removeFromCart(id); 
@@ -52,10 +52,10 @@ const addToCart = (product) => {
     );
   };
 
-  // Clear the entire cart (Called after successful payment/order)
+
   const clearCart = () => {
     setCart([]);
-    // LocalStorage will automatically clear because of the useEffect above watching the state!
+
   };
 
   return (

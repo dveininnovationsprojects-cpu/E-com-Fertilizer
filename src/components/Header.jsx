@@ -15,7 +15,8 @@ const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
 
-    // PUDHUSA ADD PANNATHU: Cart details edukkurom
+   
+    
     const { cart } = useContext(CartContext);
     const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
     useEffect(() => {
@@ -34,14 +35,14 @@ const handleLogout = () => {
 
   const handleCategoryChange = (e) => {
     const category = e.target.value;
-    // 🟢 navigate('/') ku pathila explicitly category=All nu anupanum
+   
     navigate(`/?category=${category}`); 
 };
     useEffect(() => { 
         const fetchSuggestions = async () => {
             if (searchTerm.length > 0) {
                 try {
-                    // Backend logic: neenga type pannuna letter la start aagura product fetch aagum
+                   
                     const response = await API.get(`/products?search=${searchTerm}`);
                     setSearchResults(response.data);
                 } catch (error) {
@@ -78,7 +79,7 @@ const handleLogout = () => {
     <select 
     onChange={handleCategoryChange} 
     className="bg-transparent px-0 md:px-1 border-r text-[1px] md:text-xs font-bold outline-none text-gray-500 max-w-[85px] md:max-w-none cursor-pointer overflow-hidden whitespace-nowrap"
-    style={{ textOverflow: 'ellipsis' }} // 🟢 Ithu thaan arrow mela text varatha thadukkum
+    style={{ textOverflow: 'ellipsis' }}
 >
     <option value="All">All Category</option>
     <option value="Humic Acid">Humic Acid</option>
@@ -109,7 +110,7 @@ const handleLogout = () => {
         style={{ 
             maxHeight: '350px', 
             overflowY: 'auto',
-            marginTop: '-1px' // Idhu thaan dropdown-ah header kooda merge pannum
+            marginTop: '-1px'
         }}
     >
         {searchResults.map((p) => (
@@ -185,7 +186,7 @@ const handleLogout = () => {
                 <button 
                     onClick={() => {
                         setShowProfileMenu(false);
-                        handleLogout(); // Logout logic-ah call pannum
+                        handleLogout();
                     }} 
                     className="w-full flex items-center px-4 py-3 hover:bg-red-50 text-sm font-semibold text-red-600 transition-colors border-t border-gray-100"
                 >
