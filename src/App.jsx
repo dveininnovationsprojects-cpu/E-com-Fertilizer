@@ -11,8 +11,7 @@ import Cart from './pages/Cart';
 import ProtectedRoute from './components/ProtectedRoute'; 
 import ProductDetails from './pages/ProductDetails';
 import Profile from "./pages/Profile";
-import OrderHistory from "./pages/OrderHistory";
-import SupportTicket from './pages/SupportTicket';
+
 import { Toaster } from 'react-hot-toast';
 import { CartProvider } from './context/CartContext';
 
@@ -50,7 +49,6 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
-          {/* Protected Admin Route - Admin mattum thaan access panna mudiyum */}
           <Route 
             path="/admin" 
             element={
@@ -59,15 +57,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
-          <Route 
-  path="/support" 
-  element={
-    <ProtectedRoute>
-      <SupportTicket />
-    </ProtectedRoute>
-  } 
-/>
           <Route 
             path="/profile" 
             element={
@@ -76,14 +65,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/order-history" 
-            element={
-              <ProtectedRoute>
-                <OrderHistory />
-              </ProtectedRoute>
-            } 
-          />
+
         </Routes>
       </LayoutWrapper>
     </Router>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from "../api/axios";
 import { motion } from 'framer-motion';
-import { CartContext } from '../context/CartContext'; // PUDHUSA ADD PANNATHU: Namma CartContext
+import { CartContext } from '../context/CartContext'; 
 import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
@@ -41,17 +41,6 @@ const ProductDetails = () => {
 
     if (!product) return <div className="text-center py-20 font-bold text-xl">Product Not Found!</div>;
 const addToCartHandler = async (shouldNavigate = false) => {
-    // Ippo backend call-a comment pannidunga (Temporary)
-    /*
-    try {
-        await API.post('/cart/add', {
-            productId: product._id,
-            quantity: quantity
-        });
-    } catch (error) { ... }
-    */
-
-    // Direct-ah frontend context-la mattum add pannunga
     addToCart({ ...product, quantity }); 
     toast.success("Added to Cart Successfully!");
 
@@ -76,10 +65,8 @@ const addToCartHandler = async (shouldNavigate = false) => {
                             className="h-full object-contain hover:scale-110 transition-transform duration-500" 
                         />
                     </motion.div>
-                    
-                   {/* Thumbnail List - Duplicate fix panniyachi */}
+                   
 <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-    {/* product.images array-va mattum map pannunga */}
     {product.images.map((img, index) => (
         <div 
             key={index}
@@ -116,7 +103,7 @@ const addToCartHandler = async (shouldNavigate = false) => {
         </div>
     </div>
 
-    {/* 3. Stock & Quantity (Mela kondu vandhachu) */}
+   
     <div className="space-y-6">
         <div className="flex items-center gap-10">
             <div className="flex items-center border border-gray-200 rounded-full px-4 py-2 w-max shadow-sm">
@@ -135,7 +122,7 @@ const addToCartHandler = async (shouldNavigate = false) => {
             </span>
         </div>
 
-        {/* 4. Action Buttons (Mela kondu vandhachu) */}
+
         <div className="flex flex-col sm:flex-row gap-4">
             <button onClick={() => addToCartHandler(false)} className="flex-1 bg-[#79A206] text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-[#333] transition-all shadow-xl shadow-[#79A206]/20">
                 <i className="fa-solid fa-cart-shopping mr-3"></i> Add to Cart
@@ -146,7 +133,6 @@ const addToCartHandler = async (shouldNavigate = false) => {
         </div>
     </div>
 
-    {/* 5. Description (Keela kondu vandhachu with "Read More" logic) */}
     <div className="mt-6 pt-6 border-t border-gray-100">
         <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 mb-3">Product Description</h3>
         <div 
@@ -154,13 +140,12 @@ const addToCartHandler = async (shouldNavigate = false) => {
         >
             <p className="whitespace-pre-line">{product.description}</p>
             
-            {/* Fade effect at the bottom when collapsed */}
+         
             {!isDescExpanded && product.description.length > 200 && (
                 <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
             )}
         </div>
         
-        {/* Toggle Button for Read More / Less */}
         {product.description.length > 200 && (
             <button 
                 onClick={() => setIsDescExpanded(!isDescExpanded)}

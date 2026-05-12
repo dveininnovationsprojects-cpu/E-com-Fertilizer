@@ -23,11 +23,11 @@ const AdminDashboard = () => {
     
    
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(6); // Shows pagination only if items > 6
+    const [itemsPerPage] = useState(6); 
     const [searchQuery, setSearchQuery] = useState("");
     const [filterCategory, setFilterCategory] = useState("All");
     const [filterStatus, setFilterStatus] = useState("All");
-    const [paymentToggles, setPaymentToggles] = useState({}); // Tracks "Verified" checkbox
+    const [paymentToggles, setPaymentToggles] = useState({}); 
     const [qrImage, setQrImage] = useState(null);
 const [qrPreview, setQrPreview] = useState(adminUser.qrCode || "");
 const [newUpiId, setNewUpiId] = useState(adminUser.upiId || "");
@@ -73,7 +73,7 @@ const [formData, setFormData] = useState({
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Reset pagination when filters change
+   
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, filterCategory, filterStatus]);
@@ -112,15 +112,15 @@ const fetchData = async () => {
             API.get('/products').catch(() => ({ data: [] })),
             API.get('/admin/orders').catch(() => ({ data: [] })),
             API.get('/support').catch(() => ({ data: [] })),
-            API.get('/admin/users').catch(() => ({ data: [] })) // Inga route correct-a irukanum
+            API.get('/admin/users').catch(() => ({ data: [] })) 
         ]);
         setProducts(pRes.data);
         setOrders(oRes.data);
         setTickets(tRes.data || []);
         
-        // --- Mukkiyamaana change inga thaan ---
+       
         const usersList = cRes.data || [];
-        // Role check backend-laye panni irunthaalum safety-ku ingayum filter pannunga
+       
         setCustomers(usersList.filter(user => user.role === 'user')); 
     } catch (err) {
         console.error("Dashboard Sync Error");
@@ -130,9 +130,9 @@ const fetchData = async () => {
 
     const getProductName = (productRef) => {
         if (!productRef) return "Unknown Product";
-        if (productRef.name) return productRef.name; // If backend already populated it
+        if (productRef.name) return productRef.name; 
         
-        // If it's an ID string/object, find it in our products state
+      
         const foundProduct = products.find(p => p._id === productRef || p._id === productRef.toString());
         return foundProduct ? foundProduct.name : `Product ID: ${productRef}`;
     };
@@ -152,7 +152,7 @@ const openAddModal = () => {
     setEditProductId(null);
     setFormData({ 
         name: '', 
-        category: 'Humic Acid', // 👈 Inga mathunga
+        category: 'Humic Acid', 
         mrp: '',
         price: '', 
         stock: '', 
@@ -186,7 +186,7 @@ const handleProductSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
-    // 🟢 Puthusa Add panna Line: Make sure MRP is sent
+   
     const submitData = { ...formData };
     if (!submitData.mrp) {
         submitData.mrp = 0; // Fallback
@@ -197,7 +197,7 @@ const handleProductSubmit = async (e) => {
 
     try {
         if (editMode) {
-    // Edit pannum pothu images iruntha, loop panni 'images' key-la append pannunga
+   
     if (images.length > 0) {
         images.forEach(img => data.append('images', img));
     }
@@ -242,7 +242,7 @@ const confirmDeleteProduct = async () => {
     } catch (err) {
         toast.error(err.response?.data?.message || "Failed to delete product."); 
     } finally {
-        setProductToDelete(null); // Success aanaalum error aanaalum modal-ah close pannidum
+        setProductToDelete(null);
     }
 };
 
@@ -290,7 +290,6 @@ const handleProfileUpdate = async (e) => {
         const updatedUser = res.data.user || res.data;
         setAdminUser(prev => ({ ...prev, name: updatedUser.name, email: updatedUser.email }));
         
-        // Update LocalStorage (so reload pannaalum name maarathu)
         const storedUserStr = localStorage.getItem('user');
         if (storedUserStr) {
             let storedUser = JSON.parse(storedUserStr);
@@ -395,7 +394,8 @@ const filteredCustomers = customers.filter(c => {
     const searchTarget = name + " " + email;
     return searchTarget.toLowerCase().includes(searchQuery.toLowerCase());
 });
-// Paginated customers-a namma table-ku anuprom
+
+
 const currentCustomers = getPaginatedData(filteredCustomers);
 const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
 
@@ -959,7 +959,8 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                     <tbody>
                        {currentCustomers.length > 0 ? (
         currentCustomers.map(c => {
-            // 🟢 PUDHU LOGIC: Thani thani address fields-ah onna sekkurom
+           
+
             const fullAddress = [
                 c.buildingNo,
                 c.street,
@@ -970,7 +971,7 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                 c.pinCode
             ].filter(Boolean).join(', ');
 
-            // Pudhu format illana pazhaiya address-ah kaattuvom, adhuvum illana 'Not Provided'
+            
             const displayAddress = fullAddress || c.address || 'Not Provided';
 
             return (
@@ -978,7 +979,7 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                     <td style={{...s.td, fontWeight: '500'}}>{c.name}</td>
                     <td style={{...s.td, color: theme.subText}}>{c.email}</td>
                     <td style={{...s.td, color: theme.subText}}>{c.phone || 'Not Provided'}</td>
-                    {/* 🟢 Address column update aagiduchu */}
+                   
                     <td style={{...s.td, color: theme.subText, lineHeight: '1.5', maxWidth: '300px'}}>
                         {displayAddress}
                     </td>
@@ -1086,7 +1087,7 @@ const totalCustomerPages = Math.ceil(filteredCustomers.length / itemsPerPage);
                             <div style={s.card}>
                                 <h3 style={{fontSize: '16px', fontWeight: '600', marginBottom: '20px'}}>Update Details</h3>
                                 <form onSubmit={handleProfileUpdate}>
-                                {/* Update Details Card kulla */}
+                               
 <div style={s.formGroup}>
     <label style={s.label}>Full Name</label>
     <input 

@@ -19,10 +19,10 @@ const Cart = () => {
         qrCode: "" 
     });
 
-    // Calculate the total order amount
+    
     const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
-    // Fetch Admin Settings on component mount
+   
     useEffect(() => {
         const fetchAdminSettings = async () => {
             try {
@@ -43,7 +43,7 @@ const Cart = () => {
 const handleProceedToPayment = () => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
 
-    // 1st Check: Login panni irukkangala?
+   
     if (!storedUser) {
         toast.error("Please login to proceed with the payment!", {
             icon: '⚠️',
@@ -52,12 +52,9 @@ const handleProceedToPayment = () => {
         return; 
     }
 
-    // 2nd Check: Address irukkaa nu pakkurom
-    // Ippo namma thani thani fields-ah check pandrom
     const userData = storedUser?.user || storedUser;
     const hasAddress = userData?.city && userData?.pinCode && userData?.buildingNo;
 
-    // Palaiya string address fallback kooda vechukalam
     const hasOldAddress = userData?.address && userData?.address !== "Address not provided";
 
     if (!hasAddress && !hasOldAddress) {
@@ -67,20 +64,20 @@ const handleProceedToPayment = () => {
             style: { borderRadius: '10px', background: '#e74c3c', color: '#fff', fontWeight: 'bold' },
         });
         
-        // Profile-ku kootittu poiralam
+
         setTimeout(() => {
             navigate('/profile', { state: { activeTab: 'address' } });
         }, 1500); 
         return;
     }
 
-    // Ellam pakka na payment section kaattanum
+
     setShowPayment(true);
 };
     
 
 const handleConfirmAndWhatsApp = async () => {
-    // 1. First Check: User Login aagi irukkangala?
+
     const storedUser = JSON.parse(localStorage.getItem('user'));
     
     if (!storedUser) {
@@ -92,7 +89,7 @@ const handleConfirmAndWhatsApp = async () => {
                 color: '#fff',
             },
         });
-        return; // Login illana ithoda function stop aydum
+        return; 
     }
 
    if (!paymentFile) {
@@ -100,13 +97,13 @@ const handleConfirmAndWhatsApp = async () => {
     return;
 }
 
-    // Ellam iruntha mattum Loading start pannanum
+    
    setLoading(true);
 
     try {
         const userData = storedUser?.user || storedUser;
 
-        // Backend-la irundhu varra thani thani fields-ah onna sekurom
+   
         const formattedAddress = [
             userData?.buildingNo,
             userData?.street,
@@ -118,7 +115,7 @@ const handleConfirmAndWhatsApp = async () => {
             userData?.pinCode
         ].filter(Boolean).join(', ');
 
-        // Fallback aah palaiya address vachukalam
+      
         const userAddress = formattedAddress || userData?.address || "Address not provided";
 
         const formData = new FormData();
@@ -131,24 +128,23 @@ const handleConfirmAndWhatsApp = async () => {
         formData.append('shippingAddress', userAddress);
         formData.append('paymentScreenshot', paymentFile);
 
-        // 1. Create Order (POST request)
-        const res = await API.post('/orders', formData, {
+             const res = await API.post('/orders', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
 
         const orderId = res.data._id;
         const screenshotUrl = res.data.paymentScreenshot;
 
-        // 2. WhatsApp Message Link Generation
+        
         const adminNumber = "9944848617";
         const message = `*NEW ORDER PLACED!* \n\n*Order ID:* ${orderId}\n*Total:* ₹${totalAmount}\n*Address:* ${userAddress}\n\n*Payment Proof:* ${screenshotUrl}`;
         
         const whatsappLink = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
         
-        // WhatsApp tab open pannanum
+        
         window.open(whatsappLink, '_blank');
 
-        // 3. Final Steps: Cart clear panni Success Modal kaattanum
+        
         clearCart();
         setShowSuccessPopup(true);
 
@@ -161,11 +157,11 @@ const handleConfirmAndWhatsApp = async () => {
     }
 };
 
-// Empty Cart UI State
+
     if (cart.length === 0) {
         return (
             <>
-                {/* SUCCESS POPUP MODAL (Inga kondu vanthutom) */}
+                
                 {showSuccessPopup && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-4">
                         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl animate-fadeIn">
@@ -268,7 +264,7 @@ const handleConfirmAndWhatsApp = async () => {
                     
                     {!showPayment && (
                         <button 
-    onClick={handleProceedToPayment} // Namma puthu function inga varum
+    onClick={handleProceedToPayment} 
     className="mt-6 bg-[#79A206] text-white px-6 py-3 rounded-xl font-bold w-full hover:bg-[#658a05] transition-colors"
 >
     Proceed to Payment
@@ -319,7 +315,7 @@ const handleConfirmAndWhatsApp = async () => {
         Upload your payment screenshot below and confirm your order.
     </p>
 
-    {/* 🟢 File Input Start */}
+
     <div className="mb-4">
         <input 
             type="file" 

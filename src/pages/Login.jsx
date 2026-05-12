@@ -33,10 +33,10 @@ const Login = () => {
       const res = await API.post("/auth/login", { email, password });
 
       if (res.data.success || res.status === 200) {
-        // Save user details correctly based on backend response
+        
         localStorage.setItem("user", JSON.stringify(res.data));
         
-        // Setup Modal Data using robust property checking
+       
         const role = res.data.role || res.data.user?.role;
         const name = res.data.name || res.data.user?.name || "User";
 

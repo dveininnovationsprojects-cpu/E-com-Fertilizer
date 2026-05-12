@@ -65,12 +65,10 @@ const handleLogout = () => {
     className="md:hidden mr-2 text-gray-700 text-xl"
     onClick={() => setIsMenuOpen(!isMenuOpen)}
 >
-    {/* 🟢 Straight equal lines icon */}
     <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
 </button>
     <Link to="/" className="flex items-center">
         <img src="/images/logo.png" alt="Saraswathy" className="h-8 md:h-11 w-auto object-contain" />
-        {/* hidden sm:block will keep it hidden on small mobiles */}
         <span className="hidden sm:block text-lg font-black ml-2 text-[#333] tracking-tighter">SARAL-X</span>
     </Link>
 </div>
@@ -103,7 +101,7 @@ const handleLogout = () => {
         <i className="fa fa-search text-sm"></i>
     </button>
 
-{/* --- Search Results Dropdown (Merged with Header UI) --- */}
+
 {searchResults.length > 0 && (
     <div 
         className="absolute top-full left-0 w-full bg-white shadow-xl border-x border-b border-gray-100 z-[1000] overflow-hidden animate-fadeIn"
@@ -135,10 +133,11 @@ const handleLogout = () => {
 )}
 </div>
 
-                {/* 3. Navigation Icons Section */}
+               
+               
                 <div className="flex items-center space-x-3 md:space-x-6 text-gray-700">
-                    {/* Desktop Text-less Icons */}
-                    {/* Desktop Navigation Icons Section */}
+                   
+                   
 <div className="hidden md:flex items-center space-x-5 mr-4 border-r pr-6 border-gray-200">
     <Link to="/" title="Home" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-house"></i></Link>
     <Link to="/about" title="About Us" className="hover:text-[#79A206] transition-all"><i className="fa-solid fa-circle-info"></i></Link>
@@ -169,7 +168,7 @@ const handleLogout = () => {
     <div className="absolute right-0 mt-4 w-48 bg-white shadow-2xl rounded-lg py-2 border border-gray-100 animate-fadeIn overflow-hidden">
         {!isLoggedIn ? (
             <>
-                {/* 🟢 User Login aagalana idhu mattum thaan theriyum */}
+                
                 <Link to="/login" onClick={() => setShowProfileMenu(false)} className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
                     <i className="fa-solid fa-right-to-bracket mr-3 text-[#79A206]"></i> Login
                 </Link>
@@ -179,7 +178,7 @@ const handleLogout = () => {
             </>
         ) : (
             <>
-                {/* 🟢 User Login aagi irundha idhu mattum thaan theriyum */}
+               
                 <Link to="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center px-4 py-3 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors">
                     <i className="fa-solid fa-id-badge mr-3 text-[#79A206]"></i> My Profile
                 </Link>
@@ -217,7 +216,7 @@ const handleLogout = () => {
     <li><Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-house text-[#79A206]"></i> Home</Link></li>
     <li><Link to="/about" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3"><i className="fa-solid fa-circle-info text-[#79A206]"></i> About Us</Link></li>
     
-    {/* NEW CART OPTION IN SIDEBAR */}
+   
     <li>
         <Link to="/cart" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3">
             <i className="fa-solid fa-cart-shopping text-[#79A206]"></i> My Cart
@@ -239,11 +238,10 @@ const handleLogout = () => {
             <>
                 <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
                 <li><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
-                {/* ❌ Inga irundha Profile link-ah remove panniyachu */}
+                
             </>
         ) : (
             <>
-                {/* 🟢 Login aagi irundha mattum thaan Profile kaattum */}
                 <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
                 <li className="text-red-500 cursor-pointer" onClick={() => {
                     setIsMenuOpen(false); 

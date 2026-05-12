@@ -10,7 +10,7 @@ const Profile = () => {
   const [editMode, setEditMode] = useState(false);
   const [passwords, setPasswords] = useState({ current: "", newPwd: "", confirm: "" });
   const [orders, setOrders] = useState([]);
-  const [allProducts, setAllProducts] = useState([]); // To get product names and images
+  const [allProducts, setAllProducts] = useState([]); 
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [supportMsg, setSupportMsg] = useState("");
@@ -33,7 +33,7 @@ const [addressForm, setAddressForm] = useState({
     country: "India", 
     pinCode: ""
   });
-   // Catch state from navigation (e.g., from Cart to Orders)
+
   useEffect(() => {
     if (location.state && location.state.activeTab) {
       setActiveTab(location.state.activeTab);
@@ -42,7 +42,7 @@ const [addressForm, setAddressForm] = useState({
 
   useEffect(() => {
     fetchProfile();
-    fetchAllProducts(); // Fetch products to show images/names in orders
+    fetchAllProducts(); 
   }, []);
 
   useEffect(() => {
@@ -63,7 +63,7 @@ const fetchProfile = async () => {
         setUser(fetchedUser); 
         localStorage.setItem("user", JSON.stringify(fetchedUser));
 
-        // 🟢 Direct Mapping ONLY (Pazhaiya if(fetchedUser.address) split logic-ah thookitom!)
+        
         setAddressForm({
             buildingNo: fetchedUser.buildingNo || "",
             street: fetchedUser.street || "",
@@ -88,7 +88,7 @@ const fetchProfile = async () => {
     }
 };
 
-  // Fetch all products to map IDs to Images/Names
+ 
   const fetchAllProducts = async () => {
     try {
       const res = await API.get('/products');
@@ -113,7 +113,7 @@ const fetchProfile = async () => {
     }
   };
 
-  // Helper to get Product Name and Image from ID
+ 
   const getProductDetails = (prodRef) => {
     const fallbackImage = "https://via.placeholder.com/80?text=Product";
     if (!prodRef) return { name: "Unknown Product", image: fallbackImage };
@@ -132,7 +132,7 @@ const fetchProfile = async () => {
     try {
       await API.put(`/orders/${orderId}/cancel`);
       toast.success("Order cancelled successfully!");
-      fetchOrders(); // Refresh the list after cancellation
+      fetchOrders(); 
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to cancel order.");
     }
@@ -163,7 +163,7 @@ const handleAddressSave = async () => {
     }
 
     try {
-        // Direct aah full object-ah backend-kku anuprom
+       
         const payload = { ...user, ...addressForm }; 
         const res = await API.put(`/auth/profile`, payload);
         
@@ -171,8 +171,7 @@ const handleAddressSave = async () => {
             const updatedUser = res.data.user || res.data;
             localStorage.setItem("user", JSON.stringify(updatedUser));
             setUser(updatedUser);
-            
-            // 🟢 Save aanathukku appramum andha box-kulla values apdiye ukanthu irukka idhu udhavum
+        
             setAddressForm({
                 buildingNo: updatedUser.buildingNo || "",
                 street: updatedUser.street || "",
@@ -208,7 +207,7 @@ const handleSupportSend = async () => {
     if (!supportMsg.trim()) return toast.error("Please write a message.");
     setSupportSending(true);
     try {
-      // Direct-a backend-ku anupputhu. user._id token valiya poidum.
+     
       await API.post("/support", {
         subject: supportSubject,
         message: supportMsg,
@@ -223,10 +222,7 @@ const handleSupportSend = async () => {
       setSupportSending(false);
     }
   };
-// Logout button-ah click panna modal open aagum
 const handleLogoutClick = () => setShowLogoutModal(true);
-
-// Modal-la 'Yes' click panna thaan actual logout aagum
 const confirmLogout = async () => {
     try {
         await API.post("/auth/logout");

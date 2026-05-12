@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-// find this line and add useLocation
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -17,7 +16,7 @@ import 'swiper/css/effect-fade';
 const Home = () => {
     const navigate = useNavigate();
     
-    const productSectionRef = useRef(null); // For "Shop Now" scroll logic
+    const productSectionRef = useRef(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState('All');
@@ -25,14 +24,14 @@ const Home = () => {
     const location = useLocation();
 const queryParams = new URLSearchParams(location.search);
 const categoryFromURL = queryParams.get('category') || 'All';
-const searchFromURL = queryParams.get('search') || ""; // Add search param
+const searchFromURL = queryParams.get('search') || ""; 
 const { addToCart } = useContext(CartContext);
 
 useEffect(() => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            // 1. URL params ready pannurom
+            
             const params = {};
             if (categoryFromURL && categoryFromURL !== 'All') {
                 params.category = categoryFromURL;
@@ -41,15 +40,14 @@ useEffect(() => {
                 params.search = searchFromURL;
             }
 
-            // 2. ORE ORU API CALL (Clean-ah axiosConfig use pannurom)
-            // Backend-ku query params anuppurom
+            
             const response = await API.get('/products', { params });
 
-            // 3. Data-va set pannurom
+           
             setProducts(response.data);
             setLoading(false);
 
-            // 🟢 Page Scroll Logic
+            
             if (location.search) { 
                 setTimeout(() => {
                     productSectionRef.current?.scrollIntoView({ 
@@ -243,9 +241,9 @@ useEffect(() => {
     {/* CART BUTTON - Add and Navigate */}
     <button 
         onClick={(e) => {
-            e.stopPropagation(); // Card click details page poguratha thadukkum
-            addToCart(p); // Context update panni cart-la add pannum
-            navigate('/cart'); // Instant-ah cart page kootitu pogum
+            e.stopPropagation(); 
+            addToCart(p);
+            navigate('/cart');
         }}
         className="w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#79A206] hover:text-white transition-all"
     >
